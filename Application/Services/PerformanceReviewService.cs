@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using EmployeeReview.Application.DTOs;
+using EmployeeReview.Contracts.DTOs;
 using EmployeeReview.Domain.Entities;
 using EmployeeReview.Infrastructure.Data;
 
@@ -15,7 +15,6 @@ namespace EmployeeReview.Application.Services
         Task<PerformanceAnalyticsDto> GetPerformanceAnalyticsAsync();
     }
 
-
     public class PerformanceReviewService : IPerformanceReviewService
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -29,14 +28,14 @@ namespace EmployeeReview.Application.Services
 
         public async Task<PerformanceReviewDto> GetReviewByIdAsync(int id)
         {
-            var review = await _unitOfWork.PerformanceReviewRepository.GetByIdAsync(id);
-            return _mapper.Map<PerformanceReviewDto>(review);
+            // Using the repository method that returns DTO directly
+            return await _unitOfWork.PerformanceReviewRepository.GetReviewDtoByIdAsync(id);
         }
 
         public async Task<IEnumerable<PerformanceReviewDto>> GetReviewsByEmployeeIdAsync(int employeeId)
         {
-            var reviews = await _unitOfWork.PerformanceReviewRepository.GetReviewsByEmployeeIdAsync(employeeId);
-            return _mapper.Map<IEnumerable<PerformanceReviewDto>>(reviews);
+            // Using the repository method that returns DTOs directly
+            return await _unitOfWork.PerformanceReviewRepository.GetReviewDtosByEmployeeIdAsync(employeeId);
         }
 
         public async Task<PerformanceReviewDto> CreateReviewAsync(CreatePerformanceReviewDto reviewDto)
@@ -70,7 +69,8 @@ namespace EmployeeReview.Application.Services
             var createdReview = await _unitOfWork.PerformanceReviewRepository.AddAsync(review);
             await _unitOfWork.CompleteAsync();
 
-            return _mapper.Map<PerformanceReviewDto>(createdReview);
+            // Get the full DTO with related data
+            return await _unitOfWork.PerformanceReviewRepository.GetReviewDtoByIdAsync(createdReview.Id);
         }
 
         public async Task<PerformanceReviewDto> UpdateReviewAsync(int id, UpdatePerformanceReviewDto reviewDto)
@@ -95,54 +95,43 @@ namespace EmployeeReview.Application.Services
             await _unitOfWork.PerformanceReviewRepository.UpdateAsync(review);
             await _unitOfWork.CompleteAsync();
 
-            return _mapper.Map<PerformanceReviewDto>(review);
+            // Get the full DTO with related data
+            return await _unitOfWork.PerformanceReviewRepository.GetReviewDtoByIdAsync(id);
         }
 
         public async Task<bool> DeleteReviewAsync(int id)
         {
-            var review = await _unitOfWork.PerformanceReviewRepository.GetByIdAsync(id);
-            if (review == null)
+            try
+            {
+                await _unitOfWork.PerformanceReviewRepository.DeleteAsync(id);
+                await _unitOfWork.CompleteAsync();
+                return true;
+            }
+            catch (KeyNotFoundException)
+            {
                 return false;
-
-            await _unitOfWork.PerformanceReviewRepository.DeleteAsync(review.Id);
-            await _unitOfWork.CompleteAsync();
-            return true;
+            }
         }
 
         public async Task<PerformanceAnalyticsDto> GetPerformanceAnalyticsAsync()
         {
-            // Get average scores by department
-            var departments = await _unitOfWork.EmployeeRepository.GetAllAsync();
-            var departmentList = departments.Select(d => d.Department).Distinct().ToList();
-            var departmentPerformance = new List<DepartmentPerformanceDto>();
+            // Get all departments
+            var departments = await _unitOfWork.EmployeeRepository.GetAllDepartmentsAsync();
 
-            foreach (var department in departmentList)
-            {
-                var avgScore = await _unitOfWork.PerformanceReviewRepository.GetAverageScoreByDepartmentAsync(department);
-                departmentPerformance.Add(new DepartmentPerformanceDto
-                {
-                    Department = department,
-                    AverageScore = avgScore
-                });
-            }
+            // Get all data in parallel for better performance
+            var departmentPerformanceTask = _unitOfWork.PerformanceReviewRepository.GetAverageScoresByDepartmentAsync(departments);
+            var topPerformersTask = _unitOfWork.PerformanceReviewRepository.GetTopPerformingEmployeesAsync(5);
+            var monthlyTrendTask = _unitOfWork.PerformanceReviewRepository.GetMonthlyPerformanceTrendAsync();
 
-            // Get top 5 performing employees
-            var topPerformers = await _unitOfWork.PerformanceReviewRepository.GetTopPerformingEmployeesAsync(5);
-            var topPerformerDtos = _mapper.Map<List<TopPerformerDto>>(topPerformers);
+            // Wait for all tasks to complete
+            await Task.WhenAll(departmentPerformanceTask, topPerformersTask, monthlyTrendTask);
 
-            // Get monthly performance trend
-            var monthlyTrend = await _unitOfWork.PerformanceReviewRepository.GetMonthlyPerformanceTrendAsync();
-            var monthlyTrendDtos = monthlyTrend.Select(mt => new MonthlyPerformanceTrendDto
-            {
-                Month = mt.Key,
-                AverageScore = mt.Value
-            }).ToList();
-
+            // Create and return the final analytics DTO - no manual mapping needed here
             return new PerformanceAnalyticsDto
             {
-                DepartmentPerformance = departmentPerformance,
-                TopPerformers = topPerformerDtos,
-                MonthlyTrend = monthlyTrendDtos
+                DepartmentPerformance = departmentPerformanceTask.Result,
+                TopPerformers = topPerformersTask.Result,
+                MonthlyTrend = monthlyTrendTask.Result
             };
         }
     }

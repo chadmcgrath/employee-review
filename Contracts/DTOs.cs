@@ -1,6 +1,6 @@
 ﻿
 
-namespace EmployeeReview.Application.DTOs
+namespace EmployeeReview.Contracts.DTOs
 {
     public class EmployeeDto
     {
@@ -96,6 +96,9 @@ namespace EmployeeReview.Application.DTOs
     {
         public string Month { get; set; }
         public double AverageScore { get; set; }
+
+        public int Year { get; set; }
+        public int MonthNumber { get; set; }
     }
 
 

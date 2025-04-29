@@ -1,4 +1,4 @@
-﻿using EmployeeReview.Application.DTOs;
+﻿using EmployeeReview.Contracts.DTOs;
 using EmployeeReview.Infrastructure.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

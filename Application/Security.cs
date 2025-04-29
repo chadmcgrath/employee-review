@@ -16,8 +16,6 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace EmployeeReview.Infrastructure.Security
 {
-
-
     public static class PolicyNames
     {
         public const string AdminOnly = "AdminOnly";
@@ -40,9 +38,6 @@ namespace EmployeeReview.Infrastructure.Security
         public const string EmployeeId = "employeeId";
         public const string ReviewerId = "reviewerId";
     }
-
-
-
 
     public class ReviewAccessRequirement : IAuthorizationRequirement
     {
@@ -90,9 +85,6 @@ namespace EmployeeReview.Infrastructure.Security
             return Task.CompletedTask;
         }
     }
-
-
-
 
     public class JwtHandler
     {
@@ -247,8 +239,6 @@ namespace EmployeeReview.Infrastructure.Security
         }
     }
 
-
-
     public static class AuthorizationPolicyProvider
     {
         public static void ConfigureAuthorizationPolicies(IServiceCollection services)
@@ -284,7 +274,6 @@ namespace EmployeeReview.Infrastructure.Security
     {
     }
 
-    // Handler for employee access requirement
     public class EmployeeAccessHandler : AuthorizationHandler<EmployeeAccessRequirement>
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, EmployeeAccessRequirement requirement)

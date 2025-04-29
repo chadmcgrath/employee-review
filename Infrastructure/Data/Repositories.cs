@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using EmployeeReview.Contracts.DTOs;
 using EmployeeReview.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -32,9 +34,11 @@ namespace EmployeeReview.Infrastructure.Data.Repositories
     /// </summary>
     public interface IEmployeeRepository : IRepository<Employee>
     {
-        Task<IEnumerable<Employee>> GetEmployeesByDepartmentAsync(string department);
-        Task<IEnumerable<Employee>> SearchEmployeesByNameOrEmailAsync(string searchTerm);
-        Task<IEnumerable<Employee>> GetEmployeesWithPaginationAsync(int pageNumber, int pageSize);
+        Task<EmployeeDto> GetEmployeeDtoByIdAsync(int id);
+        Task<IEnumerable<EmployeeDto>> GetEmployeeDtosByDepartmentAsync(string department);
+        Task<IEnumerable<EmployeeDto>> SearchEmployeeDtosByNameOrEmailAsync(string searchTerm);
+        Task<IEnumerable<EmployeeDto>> GetEmployeeDtosWithPaginationAsync(int pageNumber, int pageSize);
+        Task<List<string>> GetAllDepartmentsAsync();
     }
 
     /// <summary>
@@ -42,10 +46,11 @@ namespace EmployeeReview.Infrastructure.Data.Repositories
     /// </summary>
     public interface IPerformanceReviewRepository : IRepository<PerformanceReview>
     {
-        Task<IEnumerable<PerformanceReview>> GetReviewsByEmployeeIdAsync(int employeeId);
-        Task<double> GetAverageScoreByDepartmentAsync(string department);
-        Task<IEnumerable<Employee>> GetTopPerformingEmployeesAsync(int count);
-        Task<Dictionary<string, double>> GetMonthlyPerformanceTrendAsync();
+        Task<PerformanceReviewDto> GetReviewDtoByIdAsync(int id);
+        Task<IEnumerable<PerformanceReviewDto>> GetReviewDtosByEmployeeIdAsync(int employeeId);
+        Task<List<DepartmentPerformanceDto>> GetAverageScoresByDepartmentAsync(List<string> departments);
+        Task<List<TopPerformerDto>> GetTopPerformingEmployeesAsync(int count);
+        Task<List<MonthlyPerformanceTrendDto>> GetMonthlyPerformanceTrendAsync();
     }
 
     /// <summary>
@@ -54,10 +59,14 @@ namespace EmployeeReview.Infrastructure.Data.Repositories
     public class Repository<T> : IRepository<T> where T : class
     {
         protected readonly AppDbContext _dbContext;
+        protected readonly IMapper _mapper;
+        protected readonly IConfigurationProvider _mapperConfig;
 
-        public Repository(AppDbContext dbContext)
+        public Repository(AppDbContext dbContext, IMapper mapper)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _mapperConfig = mapper.ConfigurationProvider;
         }
 
         public virtual async Task<T> GetByIdAsync(int id)
@@ -72,7 +81,9 @@ namespace EmployeeReview.Infrastructure.Data.Repositories
 
         public virtual async Task<IEnumerable<T>> GetAsync(Expression<Func<T, bool>> predicate)
         {
-            return await _dbContext.Set<T>().Where(predicate).ToListAsync();
+            return await _dbContext.Set<T>()
+                .Where(predicate)
+                .ToListAsync();
         }
 
         public virtual async Task<IEnumerable<T>> GetAsync(
@@ -93,7 +104,7 @@ namespace EmployeeReview.Infrastructure.Data.Repositories
                 query = query.Where(predicate);
 
             if (orderBy != null)
-                return await orderBy(query).ToListAsync();
+                query = orderBy(query);
 
             return await query.ToListAsync();
         }
@@ -143,35 +154,43 @@ namespace EmployeeReview.Infrastructure.Data.Repositories
     /// </summary>
     public class EmployeeRepository : Repository<Employee>, IEmployeeRepository
     {
-        private readonly IMapper _mapper;
-
-        public EmployeeRepository(AppDbContext dbContext, IMapper mapper) : base(dbContext)
+        public EmployeeRepository(AppDbContext dbContext, IMapper mapper)
+            : base(dbContext, mapper)
         {
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
-        public async Task<IEnumerable<Employee>> GetEmployeesByDepartmentAsync(string department)
+        public async Task<EmployeeDto> GetEmployeeDtoByIdAsync(int id)
+        {
+            return await _dbContext.Employees
+                .Where(e => e.Id == id)
+                .ProjectTo<EmployeeDto>(_mapperConfig)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<EmployeeDto>> GetEmployeeDtosByDepartmentAsync(string department)
         {
             if (string.IsNullOrWhiteSpace(department))
                 throw new ArgumentException("Department cannot be null or empty", nameof(department));
 
-            return await GetAsync(
-                predicate: e => e.Department == department && e.IsActive,
-                orderBy: q => q.OrderBy(e => e.Name)
-            );
+            return await _dbContext.Employees
+                .Where(e => e.Department == department && e.IsActive)
+                .OrderBy(e => e.Name)
+                .ProjectTo<EmployeeDto>(_mapperConfig)
+                .ToListAsync();
         }
 
-        public async Task<IEnumerable<Employee>> SearchEmployeesByNameOrEmailAsync(string searchTerm)
+        public async Task<IEnumerable<EmployeeDto>> SearchEmployeeDtosByNameOrEmailAsync(string searchTerm)
         {
             if (string.IsNullOrWhiteSpace(searchTerm))
                 throw new ArgumentException("Search term cannot be null or empty", nameof(searchTerm));
 
-            return await GetAsync(
-                predicate: e => (e.Name.Contains(searchTerm) || e.Email.Contains(searchTerm)) && e.IsActive
-            );
+            return await _dbContext.Employees
+                .Where(e => (e.Name.Contains(searchTerm) || e.Email.Contains(searchTerm)) && e.IsActive)
+                .ProjectTo<EmployeeDto>(_mapperConfig)
+                .ToListAsync();
         }
 
-        public async Task<IEnumerable<Employee>> GetEmployeesWithPaginationAsync(int pageNumber, int pageSize)
+        public async Task<IEnumerable<EmployeeDto>> GetEmployeeDtosWithPaginationAsync(int pageNumber, int pageSize)
         {
             if (pageNumber <= 0)
                 throw new ArgumentException("Page number must be greater than 0", nameof(pageNumber));
@@ -184,6 +203,16 @@ namespace EmployeeReview.Infrastructure.Data.Repositories
                 .OrderBy(e => e.Name)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
+                .ProjectTo<EmployeeDto>(_mapperConfig)
+                .ToListAsync();
+        }
+
+        public async Task<List<string>> GetAllDepartmentsAsync()
+        {
+            return await _dbContext.Employees
+                .Where(e => e.IsActive)
+                .Select(e => e.Department)
+                .Distinct()
                 .ToListAsync();
         }
     }
@@ -193,48 +222,58 @@ namespace EmployeeReview.Infrastructure.Data.Repositories
     /// </summary>
     public class PerformanceReviewRepository : Repository<PerformanceReview>, IPerformanceReviewRepository
     {
-        private readonly IMapper _mapper;
-
-        public PerformanceReviewRepository(AppDbContext dbContext, IMapper mapper) : base(dbContext)
+        public PerformanceReviewRepository(AppDbContext dbContext, IMapper mapper)
+            : base(dbContext, mapper)
         {
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
-        public async Task<IEnumerable<PerformanceReview>> GetReviewsByEmployeeIdAsync(int employeeId)
+        public async Task<PerformanceReviewDto> GetReviewDtoByIdAsync(int id)
+        {
+            return await _dbContext.PerformanceReviews
+                .Where(r => r.Id == id)
+                .ProjectTo<PerformanceReviewDto>(_mapperConfig)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<PerformanceReviewDto>> GetReviewDtosByEmployeeIdAsync(int employeeId)
         {
             if (employeeId <= 0)
                 throw new ArgumentException("Employee ID must be greater than 0", nameof(employeeId));
 
-            return await GetAsync(
-                predicate: r => r.EmployeeId == employeeId,
-                orderBy: q => q.OrderByDescending(r => r.ReviewDate),
-                includes: new List<Expression<Func<PerformanceReview, object>>> { r => r.Reviewer });
+            return await _dbContext.PerformanceReviews
+                .Where(r => r.EmployeeId == employeeId)
+                .OrderByDescending(r => r.ReviewDate)
+                .ProjectTo<PerformanceReviewDto>(_mapperConfig)
+                .ToListAsync();
         }
 
-        public async Task<double> GetAverageScoreByDepartmentAsync(string department)
+        public async Task<List<DepartmentPerformanceDto>> GetAverageScoresByDepartmentAsync(List<string> departments)
         {
-            if (string.IsNullOrWhiteSpace(department))
-                throw new ArgumentException("Department cannot be null or empty", nameof(department));
+            if (departments == null || !departments.Any())
+                throw new ArgumentException("Departments list cannot be null or empty", nameof(departments));
 
-            var result = await _dbContext.PerformanceReviews
+            return await _dbContext.PerformanceReviews
                 .Include(r => r.Employee)
-                .Where(r => r.Employee.Department == department && r.Employee.IsActive)
-                .AverageAsync(r => r.Score);
-
-            return result;
+                .Where(r => departments.Contains(r.Employee.Department) && r.Employee.IsActive)
+                .GroupBy(r => r.Employee.Department)
+                .Select(g => new DepartmentPerformanceDto
+                {
+                    Department = g.Key,
+                    AverageScore = g.Average(r => r.Score)
+                })
+                .ToListAsync();
         }
 
-        public async Task<IEnumerable<Employee>> GetTopPerformingEmployeesAsync(int count)
+        public async Task<List<TopPerformerDto>> GetTopPerformingEmployeesAsync(int count)
         {
             if (count <= 0)
                 throw new ArgumentException("Count must be greater than 0", nameof(count));
 
-            // Group reviews by employee and calculate average scores
-            var topEmployees = await _dbContext.PerformanceReviews
+            return await _dbContext.PerformanceReviews
                 .Include(r => r.Employee)
                 .Where(r => r.Employee.IsActive)
                 .GroupBy(r => new { r.EmployeeId, r.Employee.Name, r.Employee.Department })
-                .Select(g => new
+                .Select(g => new TopPerformerDto
                 {
                     EmployeeId = g.Key.EmployeeId,
                     Name = g.Key.Name,
@@ -244,30 +283,26 @@ namespace EmployeeReview.Infrastructure.Data.Repositories
                 .OrderByDescending(x => x.AverageScore)
                 .Take(count)
                 .ToListAsync();
-
-            // Fetch the actual employee entities
-            var employeeIds = topEmployees.Select(e => e.EmployeeId).ToList();
-            return await _dbContext.Employees
-                .Where(e => employeeIds.Contains(e.Id))
-                .ToListAsync();
         }
 
-        public async Task<Dictionary<string, double>> GetMonthlyPerformanceTrendAsync()
+        public async Task<List<MonthlyPerformanceTrendDto>> GetMonthlyPerformanceTrendAsync()
         {
             var oneYearAgo = DateTime.Now.AddYears(-1);
 
-            var monthlyAverages = await _dbContext.PerformanceReviews
+            return await _dbContext.PerformanceReviews
                 .Where(r => r.ReviewDate >= oneYearAgo)
                 .GroupBy(r => new { r.ReviewDate.Year, r.ReviewDate.Month })
-                .Select(g => new
+                .Select(g => new MonthlyPerformanceTrendDto
                 {
-                    YearMonth = $"{g.Key.Year}-{g.Key.Month:D2}",
-                    AverageScore = g.Average(r => r.Score)
+                    Month = $"{g.Key.Year}-{g.Key.Month:D2}",
+                    AverageScore = g.Average(r => r.Score),
+                    // Adding these for sorting purposes
+                    Year = g.Key.Year,
+                    MonthNumber = g.Key.Month
                 })
-                .OrderBy(x => x.YearMonth)
-                .ToDictionaryAsync(k => k.YearMonth, v => v.AverageScore);
-
-            return monthlyAverages;
+                .OrderBy(x => x.Year)
+                .ThenBy(x => x.MonthNumber)
+                .ToListAsync();
         }
 
         public override async Task<PerformanceReview> AddAsync(PerformanceReview review)

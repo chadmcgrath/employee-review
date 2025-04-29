@@ -1,6 +1,5 @@
-﻿
-using AutoMapper;
-using EmployeeReview.Application.DTOs;
+﻿using AutoMapper;
+using EmployeeReview.Contracts.DTOs;
 using EmployeeReview.Domain.Entities;
 using EmployeeReview.Infrastructure.Data;
 
@@ -16,7 +15,6 @@ namespace EmployeeReview.Application.Services
         Task<bool> EmployeeExistsAsync(int id);
     }
 
-
     public class EmployeeService : IEmployeeService
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -30,48 +28,42 @@ namespace EmployeeReview.Application.Services
 
         public async Task<EmployeeDto> GetEmployeeByIdAsync(int id)
         {
-            var employee = await _unitOfWork.EmployeeRepository.GetByIdAsync(id);
-            return _mapper.Map<EmployeeDto>(employee);
+            // Using the repository method that returns DTO directly
+            return await _unitOfWork.EmployeeRepository.GetEmployeeDtoByIdAsync(id);
         }
 
         public async Task<PaginatedListDto<EmployeeDto>> GetEmployeesAsync(int pageNumber, int pageSize, string searchTerm = null, string department = null)
         {
-            // Start with base query
-            IEnumerable<Employee> employees;
+            // Apply filters to get appropriate DTOs
+            IEnumerable<EmployeeDto> employeeDtos;
             int totalCount;
 
-            // Apply search if provided
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
-                employees = await _unitOfWork.EmployeeRepository.SearchEmployeesByNameOrEmailAsync(searchTerm);
+                employeeDtos = await _unitOfWork.EmployeeRepository.SearchEmployeeDtosByNameOrEmailAsync(searchTerm);
+                totalCount = await _unitOfWork.EmployeeRepository.CountAsync(e =>
+                    (e.Name.Contains(searchTerm) || e.Email.Contains(searchTerm)) && e.IsActive);
             }
-            // Apply department filter if provided
             else if (!string.IsNullOrWhiteSpace(department))
             {
-                employees = await _unitOfWork.EmployeeRepository.GetEmployeesByDepartmentAsync(department);
+                employeeDtos = await _unitOfWork.EmployeeRepository.GetEmployeeDtosByDepartmentAsync(department);
+                totalCount = await _unitOfWork.EmployeeRepository.CountAsync(e =>
+                    e.Department == department && e.IsActive);
             }
-            // No filters, get all
             else
             {
-                employees = await _unitOfWork.EmployeeRepository.GetEmployeesWithPaginationAsync(pageNumber, pageSize);
+                employeeDtos = await _unitOfWork.EmployeeRepository.GetEmployeeDtosWithPaginationAsync(pageNumber, pageSize);
+                totalCount = await _unitOfWork.EmployeeRepository.CountAsync(e => e.IsActive);
             }
 
-            // Get total count for pagination
-            totalCount = await _unitOfWork.EmployeeRepository.CountAsync();
-
-            // Map to DTOs
-            var employeeDtos = _mapper.Map<List<EmployeeDto>>(employees);
-
-            // Create paginated result
-            var result = new PaginatedListDto<EmployeeDto>
+            // Create paginated result without loops
+            return new PaginatedListDto<EmployeeDto>
             {
                 PageIndex = pageNumber,
                 TotalCount = totalCount,
                 TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
-                Items = employeeDtos
+                Items = employeeDtos as IReadOnlyList<EmployeeDto> ?? new List<EmployeeDto>(employeeDtos)
             };
-
-            return result;
         }
 
         public async Task<EmployeeDto> CreateEmployeeAsync(CreateEmployeeDto employeeDto)
@@ -79,7 +71,9 @@ namespace EmployeeReview.Application.Services
             var employee = _mapper.Map<Employee>(employeeDto);
             var createdEmployee = await _unitOfWork.EmployeeRepository.AddAsync(employee);
             await _unitOfWork.CompleteAsync();
-            return _mapper.Map<EmployeeDto>(createdEmployee);
+
+            // Return the DTO directly from repository
+            return await _unitOfWork.EmployeeRepository.GetEmployeeDtoByIdAsync(createdEmployee.Id);
         }
 
         public async Task<EmployeeDto> UpdateEmployeeAsync(int id, UpdateEmployeeDto employeeDto)
@@ -92,7 +86,8 @@ namespace EmployeeReview.Application.Services
             await _unitOfWork.EmployeeRepository.UpdateAsync(employee);
             await _unitOfWork.CompleteAsync();
 
-            return _mapper.Map<EmployeeDto>(employee);
+            // Return the DTO directly from repository
+            return await _unitOfWork.EmployeeRepository.GetEmployeeDtoByIdAsync(id);
         }
 
         public async Task<bool> DeleteEmployeeAsync(int id)
@@ -110,12 +105,7 @@ namespace EmployeeReview.Application.Services
 
         public async Task<bool> EmployeeExistsAsync(int id)
         {
-            var employee = await _unitOfWork.EmployeeRepository.GetByIdAsync(id);
-            return employee != null;
+            return await _unitOfWork.EmployeeRepository.CountAsync(e => e.Id == id && e.IsActive) > 0;
         }
     }
 }
-    
-
-
-    
