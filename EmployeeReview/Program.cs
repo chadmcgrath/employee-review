@@ -2,20 +2,15 @@
 using EmployeeReview.Api.Extensions;
 using EmployeeReview.Api.Middleware;
 using EmployeeReview.Application.Mappings;
-using EmployeeReview.Application.Servces;
 using EmployeeReview.Application.Services;
 using EmployeeReview.Infrastructure.Data;
 using EmployeeReview.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Serilog;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
-using static EmployeeReview.Application.Servces.EmployeeService;
+using static EmployeeReview.Application.Services.EmployeeService;
 using Asp.Versioning;
-
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,7 +35,7 @@ services.AddDbContext<AppDbContext>(options =>
 services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
 
-builder.Services.AddApiVersioning(options =>
+services.AddApiVersioning(options =>
 {
     options.DefaultApiVersion = new ApiVersion(1, 0);
     options.AssumeDefaultVersionWhenUnspecified = true;
@@ -48,6 +43,26 @@ builder.Services.AddApiVersioning(options =>
 });
 
 services.AddControllers();
+
+services.AddScoped<IUnitOfWork, UnitOfWork>();
+services.AddScoped<IEmployeeService, EmployeeService>();
+services.AddScoped<IPerformanceReviewService, PerformanceReviewService>();
+services.AddRateLimiting(configuration);
+// In development mode, use mock service with role parameter for testing
+if (environment.IsDevelopment())
+{
+    services.AddScoped<ISecretManagementService>(provider =>
+        new SecretManagementService(environment.EnvironmentName, "Admin"));
+}
+else
+{
+    services.AddScoped<ISecretManagementService>(provider =>
+        new SecretManagementService(environment.EnvironmentName, "Reader"));
+}
+
+var serviceProvider = services.BuildServiceProvider();
+var secretService = serviceProvider.GetRequiredService<ISecretManagementService>();
+var jwtSecret = secretService.GetSecretAsync("JwtSecret").GetAwaiter().GetResult();
 
 services.AddSwaggerGen(c =>
 {
@@ -116,6 +131,36 @@ services.AddSwaggerGen(c =>
             new string[] {}
         }
     });
+    if (environment.IsDevelopment())
+    {
+        // Create a JWT handler to generate a development token
+        var jwtHandler = new JwtHandler(
+            secretService,
+            configuration["Jwt:Issuer"],
+            configuration["Jwt:Audience"],
+            60 // expiry in minutes
+        );
+
+        // Generate a test token
+        var token = jwtHandler.GenerateTokenAsync("test-admin", UserRoles.Admin).GetAwaiter().GetResult();
+
+        // Add global security requirement with the token
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+                },
+                new[] { "Bearer " + token }
+            }
+        });
+
+        Console.WriteLine($"Dev mode: Auto-generated JWT token for Swagger: {token.Substring(0, 20)}...");
+    }
+
+    // Add operation filter to apply security to endpoints with [Authorize] attribute
+    c.OperationFilter<SecurityRequirementsOperationFilter>();
 
     // Include XML comments
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -129,18 +174,6 @@ services.AddSwaggerGen(c =>
 // Configure Authorization Policies
 AuthorizationPolicyProvider.ConfigureAuthorizationPolicies(services);
 
-// Register services
-// In development mode, use mock service with role parameter for testing
-if (environment.IsDevelopment())
-{
-    services.AddScoped<ISecretManagementService>(provider =>
-        new SecretManagementService(environment.EnvironmentName, "Admin"));
-}
-else
-{
-    services.AddScoped<ISecretManagementService>(provider =>
-        new SecretManagementService(environment.EnvironmentName, "Reader"));
-}
 
 // Configure JWT Handler
 services.AddScoped<JwtHandler>(provider =>
@@ -155,47 +188,34 @@ services.AddScoped<JwtHandler>(provider =>
 });
 
 
+JwtHandler.ConfigureJwtAuthentication(services,
+    configuration["Jwt:Issuer"],
+    configuration["Jwt:Audience"],
+    jwtSecret);
+
+// Add MultiAuth scheme for JWT or API Key
 services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = "MultiAuth";
     options.DefaultChallengeScheme = "MultiAuth";
 })
-    .AddPolicyScheme("MultiAuth", "JWT or API Key", options =>
-    {
-        options.ForwardDefaultSelector = context =>
-        {
-            if (context.Request.Headers.ContainsKey("X-API-Key"))
-                return "ApiKey";
-            return "Bearer";
-        };
-})
-.AddJwtBearer(options =>
+.AddPolicyScheme("MultiAuth", "JWT or API Key", options =>
 {
-    options.RequireHttpsMetadata = !environment.IsDevelopment();
-    options.SaveToken = true;
-    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    options.ForwardDefaultSelector = context =>
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = configuration["Jwt:Issuer"],
-        ValidAudience = configuration["Jwt:Audience"],
-        IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
-            System.Text.Encoding.UTF8.GetBytes(configuration["Jwt:SecretKey"])),
-        ClockSkew = TimeSpan.Zero
+        if (context.Request.Headers.ContainsKey("X-API-Key"))
+            return "ApiKey";
+        return "Bearer";
     };
 })
+// Add API Key authentication scheme
 .AddScheme<ApiKeyAuthOptions, ApiKeyAuthHandler>("ApiKey", options => { });
 
+// Debug output to verify configuration
+Console.WriteLine($"JWT Secret from SecretService: {jwtSecret?.Substring(0, Math.Min(10, jwtSecret?.Length ?? 0))}...");
+Console.WriteLine($"JWT Issuer: {configuration["Jwt:Issuer"]}");
+Console.WriteLine($"JWT Audience: {configuration["Jwt:Audience"]}");
 
-// Register repositories and services
-services.AddScoped<IUnitOfWork, UnitOfWork>();
-services.AddScoped<IEmployeeService, EmployeeService>();
-services.AddScoped<IPerformanceReviewService, PerformanceReviewService>();
-
-// Rate limiting
-services.AddRateLimiting(configuration);
 
 var app = builder.Build();
 
@@ -206,6 +226,26 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Employee Review API v1"));
 
+    // Get the JWT handler and generate a token
+    using (var scope = app.Services.CreateScope())
+    {
+        var jwtHandler = scope.ServiceProvider.GetRequiredService<JwtHandler>();
+        var token = jwtHandler.GenerateTokenAsync("test-admin", UserRoles.Admin).GetAwaiter().GetResult();
+
+        // Add development authentication middleware
+        app.Use(async (context, next) =>
+        {
+            // Only add auth header if not already present
+            if (!context.Request.Headers.ContainsKey("Authorization"))
+            {
+                context.Request.Headers.Add("Authorization", $"Bearer {token}");
+            }
+
+            await next();
+        });
+
+        Console.WriteLine($"Dev middleware: Added JWT authorization to all requests");
+    }
     // Ensure the Documents directory exists for DesignDecisions.docx
     var documentsDir = Path.Combine(app.Environment.ContentRootPath, "Documents");
     if (!Directory.Exists(documentsDir))
@@ -218,7 +258,6 @@ if (app.Environment.IsDevelopment())
     if (!File.Exists(designDocPath))
     {
         // Create a simple text file with a .docx extension as a placeholder
-        // In a real app, you'd use a library to create a proper Word document
         File.WriteAllText(designDocPath, "This is a placeholder for the Design Decisions document.");
     }
 }
@@ -259,3 +298,53 @@ if (app.Environment.IsDevelopment())
 
 app.Run();
 
+// Add this at the bottom of Program.cs
+public class SecurityRequirementsOperationFilter : Swashbuckle.AspNetCore.SwaggerGen.IOperationFilter
+{
+    public void Apply(Microsoft.OpenApi.Models.OpenApiOperation operation, Swashbuckle.AspNetCore.SwaggerGen.OperationFilterContext context)
+    {
+        // Check for authorize attribute
+        var hasAuthorize = context.MethodInfo.DeclaringType.GetCustomAttributes(true)
+            .Union(context.MethodInfo.GetCustomAttributes(true))
+            .OfType<Microsoft.AspNetCore.Authorization.AuthorizeAttribute>()
+            .Any();
+
+        if (!hasAuthorize)
+            return;
+
+        // Initialize if null
+        operation.Security ??= new List<Microsoft.OpenApi.Models.OpenApiSecurityRequirement>();
+
+        // Add JWT bearer token security requirement
+        operation.Security.Add(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+        {
+            {
+                new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                    {
+                        Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                new string[] {}
+            }
+        });
+
+        // Add API Key security requirement
+        operation.Security.Add(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "ApiKey"
+                    }
+                },
+                new string[] {}
+            }
+        });
+    }
+}

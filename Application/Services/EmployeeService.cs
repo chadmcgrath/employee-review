@@ -1,16 +1,10 @@
 ﻿
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using EmployeeReview.Application.DTOs;
-using EmployeeReview.Application.Interfaces;
 using EmployeeReview.Domain.Entities;
-using EmployeeReview.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using EmployeeReview.Infrastructure.Data;
 
-namespace EmployeeReview.Application.Servces
+namespace EmployeeReview.Application.Services
 {
     public interface IEmployeeService
     {
@@ -54,7 +48,7 @@ namespace EmployeeReview.Application.Servces
         public async Task<PaginatedListDto<EmployeeDto>> GetEmployeesAsync(int pageNumber, int pageSize, string searchTerm = null, string department = null)
         {
             // Start with base query
-            IReadOnlyList<Employee> employees;
+            IEnumerable<Employee> employees;
             int totalCount;
 
             // Apply search if provided
@@ -221,7 +215,7 @@ namespace EmployeeReview.Application.Servces
                 if (review == null)
                     return false;
 
-                await _unitOfWork.PerformanceReviewRepository.DeleteAsync(review);
+                await _unitOfWork.PerformanceReviewRepository.DeleteAsync(review.Id);
                 await _unitOfWork.CompleteAsync();
                 return true;
             }

@@ -1,13 +1,4 @@
-using EmployeeReview.Application.Interfaces;
-using EmployeeReview.Infrastructure.Security;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
+
 
 namespace EmployeeReview.Api.Controllers
 {

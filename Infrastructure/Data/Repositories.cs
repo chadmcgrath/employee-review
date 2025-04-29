@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using EmployeeReview.Domain.Entities;
-using EmployeeReview.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -10,42 +9,48 @@ using System.Threading.Tasks;
 
 namespace EmployeeReview.Infrastructure.Data.Repositories
 {
+    /// <summary>
+    /// Generic repository interface defining common data access operations
+    /// </summary>
     public interface IRepository<T> where T : class
     {
         Task<T> GetByIdAsync(int id);
         Task<IEnumerable<T>> GetAllAsync();
-        Task AddAsync(T entity);
+        Task<IEnumerable<T>> GetAsync(Expression<Func<T, bool>> predicate = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+            List<Expression<Func<T, object>>> includes = null,
+            bool disableTracking = true);
+        Task<int> CountAsync(Expression<Func<T, bool>> predicate = null);
+        Task<T> AddAsync(T entity);
         Task UpdateAsync(T entity);
         Task DeleteAsync(int id);
-    }
-    public interface IEmployeeRepository
-    {
-        Task<Employee> GetByIdAsync(int id);
-        Task<IEnumerable<Employee>> GetAllAsync();
-        Task AddAsync(Employee employee);
-        Task UpdateAsync(Employee employee);
-        Task DeleteAsync(int id);
+        Task SaveChangesAsync();
     }
 
-    public interface IPerformanceReviewRepository
+    /// <summary>
+    /// Employee repository interface for employee-specific operations
+    /// </summary>
+    public interface IEmployeeRepository : IRepository<Employee>
     {
-        Task<PerformanceReview> GetByIdAsync(int id);
-        Task<IEnumerable<PerformanceReview>> GetAllAsync();
-        Task AddAsync(PerformanceReview review);
-        Task UpdateAsync(PerformanceReview review);
-        Task DeleteAsync(int id);
+        Task<IEnumerable<Employee>> GetEmployeesByDepartmentAsync(string department);
+        Task<IEnumerable<Employee>> SearchEmployeesByNameOrEmailAsync(string searchTerm);
+        Task<IEnumerable<Employee>> GetEmployeesWithPaginationAsync(int pageNumber, int pageSize);
     }
 
-    public interface IUnitOfWork : IDisposable
+    /// <summary>
+    /// Performance review repository interface for review-specific operations
+    /// </summary>
+    public interface IPerformanceReviewRepository : IRepository<PerformanceReview>
     {
-        IEmployeeRepository EmployeeRepository { get; }
-        IPerformanceReviewRepository PerformanceReviewRepository { get; }
-
-        Task<int> CompleteAsync();
-        Task BeginTransactionAsync();
-        Task CommitTransactionAsync();
-        Task RollbackTransactionAsync();
+        Task<IEnumerable<PerformanceReview>> GetReviewsByEmployeeIdAsync(int employeeId);
+        Task<double> GetAverageScoreByDepartmentAsync(string department);
+        Task<IEnumerable<Employee>> GetTopPerformingEmployeesAsync(int count);
+        Task<Dictionary<string, double>> GetMonthlyPerformanceTrendAsync();
     }
+
+    /// <summary>
+    /// Generic repository implementation with common data access operations
+    /// </summary>
     public class Repository<T> : IRepository<T> where T : class
     {
         protected readonly AppDbContext _dbContext;
@@ -55,44 +60,23 @@ namespace EmployeeReview.Infrastructure.Data.Repositories
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public async Task<T> GetByIdAsync(int id)
+        public virtual async Task<T> GetByIdAsync(int id)
         {
             return await _dbContext.Set<T>().FindAsync(id);
         }
 
-        public async Task<IReadOnlyList<T>> GetAllAsync()
+        public virtual async Task<IEnumerable<T>> GetAllAsync()
         {
             return await _dbContext.Set<T>().ToListAsync();
         }
 
-        public async Task<IReadOnlyList<T>> GetAsync(Expression<Func<T, bool>> predicate)
+        public virtual async Task<IEnumerable<T>> GetAsync(Expression<Func<T, bool>> predicate)
         {
             return await _dbContext.Set<T>().Where(predicate).ToListAsync();
         }
 
-        public async Task<IReadOnlyList<T>> GetAsync(Expression<Func<T, bool>> predicate = null,
-            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-            string includeString = null,
-            bool disableTracking = true)
-        {
-            IQueryable<T> query = _dbContext.Set<T>();
-
-            if (disableTracking)
-                query = query.AsNoTracking();
-
-            if (!string.IsNullOrWhiteSpace(includeString))
-                query = query.Include(includeString);
-
-            if (predicate != null)
-                query = query.Where(predicate);
-
-            if (orderBy != null)
-                return await orderBy(query).ToListAsync();
-
-            return await query.ToListAsync();
-        }
-
-        public async Task<IReadOnlyList<T>> GetAsync(Expression<Func<T, bool>> predicate = null,
+        public virtual async Task<IEnumerable<T>> GetAsync(
+            Expression<Func<T, bool>> predicate = null,
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
             List<Expression<Func<T, object>>> includes = null,
             bool disableTracking = true)
@@ -114,87 +98,124 @@ namespace EmployeeReview.Infrastructure.Data.Repositories
             return await query.ToListAsync();
         }
 
-        public async Task<T> AddAsync(T entity)
-        {
-            await _dbContext.Set<T>().AddAsync(entity);
-            return entity;
-        }
-
-        public async Task UpdateAsync(T entity)
-        {
-            _dbContext.Entry(entity).State = EntityState.Modified;
-            await Task.CompletedTask;
-        }
-
-        public async Task DeleteAsync(T entity)
-        {
-            _dbContext.Set<T>().Remove(entity);
-            await Task.CompletedTask;
-        }
-
-        public async Task<int> CountAsync(Expression<Func<T, bool>> predicate = null)
+        public virtual async Task<int> CountAsync(Expression<Func<T, bool>> predicate = null)
         {
             if (predicate == null)
                 return await _dbContext.Set<T>().CountAsync();
             else
                 return await _dbContext.Set<T>().CountAsync(predicate);
         }
+
+        public virtual async Task<T> AddAsync(T entity)
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            await _dbContext.Set<T>().AddAsync(entity);
+            return entity;
+        }
+
+        public virtual async Task UpdateAsync(T entity)
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            _dbContext.Entry(entity).State = EntityState.Modified;
+        }
+
+        public virtual async Task DeleteAsync(int id)
+        {
+            var entity = await _dbContext.Set<T>().FindAsync(id);
+            if (entity == null)
+                throw new KeyNotFoundException($"Entity with ID {id} not found");
+
+            _dbContext.Set<T>().Remove(entity);
+        }
+
+        public virtual async Task SaveChangesAsync()
+        {
+            await _dbContext.SaveChangesAsync();
+        }
     }
 
-
+    /// <summary>
+    /// Employee repository implementation with employee-specific operations
+    /// </summary>
     public class EmployeeRepository : Repository<Employee>, IEmployeeRepository
     {
         private readonly IMapper _mapper;
 
         public EmployeeRepository(AppDbContext dbContext, IMapper mapper) : base(dbContext)
         {
-            _mapper = mapper;
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         public async Task<IEnumerable<Employee>> GetEmployeesByDepartmentAsync(string department)
         {
-            return await _dbContext.Employees
-                .Where(e => e.Department == department && e.IsActive)
-                .ToListAsync();
+            if (string.IsNullOrWhiteSpace(department))
+                throw new ArgumentException("Department cannot be null or empty", nameof(department));
+
+            return await GetAsync(
+                predicate: e => e.Department == department && e.IsActive,
+                orderBy: q => q.OrderBy(e => e.Name)
+            );
         }
 
         public async Task<IEnumerable<Employee>> SearchEmployeesByNameOrEmailAsync(string searchTerm)
         {
-            return await _dbContext.Employees
-                .Where(e => (e.Name.Contains(searchTerm) || e.Email.Contains(searchTerm)) && e.IsActive)
-                .ToListAsync();
+            if (string.IsNullOrWhiteSpace(searchTerm))
+                throw new ArgumentException("Search term cannot be null or empty", nameof(searchTerm));
+
+            return await GetAsync(
+                predicate: e => (e.Name.Contains(searchTerm) || e.Email.Contains(searchTerm)) && e.IsActive
+            );
         }
 
         public async Task<IEnumerable<Employee>> GetEmployeesWithPaginationAsync(int pageNumber, int pageSize)
         {
+            if (pageNumber <= 0)
+                throw new ArgumentException("Page number must be greater than 0", nameof(pageNumber));
+
+            if (pageSize <= 0)
+                throw new ArgumentException("Page size must be greater than 0", nameof(pageSize));
+
             return await _dbContext.Employees
                 .Where(e => e.IsActive)
+                .OrderBy(e => e.Name)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
         }
     }
 
+    /// <summary>
+    /// Performance review repository implementation with review-specific operations
+    /// </summary>
     public class PerformanceReviewRepository : Repository<PerformanceReview>, IPerformanceReviewRepository
     {
         private readonly IMapper _mapper;
 
         public PerformanceReviewRepository(AppDbContext dbContext, IMapper mapper) : base(dbContext)
         {
-            _mapper = mapper;
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         public async Task<IEnumerable<PerformanceReview>> GetReviewsByEmployeeIdAsync(int employeeId)
         {
-            return await _dbContext.PerformanceReviews
-                .Include(r => r.Reviewer)
-                .Where(r => r.EmployeeId == employeeId)
-                .OrderByDescending(r => r.ReviewDate)
-                .ToListAsync();
+            if (employeeId <= 0)
+                throw new ArgumentException("Employee ID must be greater than 0", nameof(employeeId));
+
+            return await GetAsync(
+                predicate: r => r.EmployeeId == employeeId,
+                orderBy: q => q.OrderByDescending(r => r.ReviewDate),
+                includes: new List<Expression<Func<PerformanceReview, object>>> { r => r.Reviewer });
         }
 
         public async Task<double> GetAverageScoreByDepartmentAsync(string department)
         {
+            if (string.IsNullOrWhiteSpace(department))
+                throw new ArgumentException("Department cannot be null or empty", nameof(department));
+
             var result = await _dbContext.PerformanceReviews
                 .Include(r => r.Employee)
                 .Where(r => r.Employee.Department == department && r.Employee.IsActive)
@@ -205,6 +226,9 @@ namespace EmployeeReview.Infrastructure.Data.Repositories
 
         public async Task<IEnumerable<Employee>> GetTopPerformingEmployeesAsync(int count)
         {
+            if (count <= 0)
+                throw new ArgumentException("Count must be greater than 0", nameof(count));
+
             // Group reviews by employee and calculate average scores
             var topEmployees = await _dbContext.PerformanceReviews
                 .Include(r => r.Employee)
@@ -244,6 +268,22 @@ namespace EmployeeReview.Infrastructure.Data.Repositories
                 .ToDictionaryAsync(k => k.YearMonth, v => v.AverageScore);
 
             return monthlyAverages;
+        }
+
+        public override async Task<PerformanceReview> AddAsync(PerformanceReview review)
+        {
+            if (review == null)
+                throw new ArgumentNullException(nameof(review));
+
+            if (review.Score < 1 || review.Score > 5)
+                throw new ArgumentOutOfRangeException(nameof(review.Score), "Performance score must be between 1 and 5");
+
+            // Check if employee exists
+            var employee = await _dbContext.Employees.FindAsync(review.EmployeeId);
+            if (employee == null)
+                throw new KeyNotFoundException($"Employee with ID {review.EmployeeId} not found");
+
+            return await base.AddAsync(review);
         }
     }
 }

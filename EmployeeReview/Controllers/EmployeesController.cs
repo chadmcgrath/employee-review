@@ -1,14 +1,10 @@
 ﻿using EmployeeReview.Application.DTOs;
-using EmployeeReview.Application.Interfaces;
-using EmployeeReview.Application.Servces;
+using EmployeeReview.Application.Services;
 using EmployeeReview.Infrastructure.Security;
-using EmployeeReview.Infrastructure.Security.EmployeeReview.Infrastructure.Security;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
+using Asp.Versioning;
+
 
 namespace EmployeeReview.Api.Controllers.REST
 {

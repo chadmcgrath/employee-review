@@ -1,12 +1,10 @@
-﻿using EmployeeReview.Domain.Interfaces;
-using EmployeeReview.Infrastructure.Data.Repositories;
+﻿using EmployeeReview.Infrastructure.Data.Repositories;
 using Microsoft.EntityFrameworkCore.Storage;
-using System;
-using System.Threading.Tasks;
 using AutoMapper;
 
 namespace EmployeeReview.Infrastructure.Data
 {
+    
 
     public interface IUnitOfWork : IDisposable
     {

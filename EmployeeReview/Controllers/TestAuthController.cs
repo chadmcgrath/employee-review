@@ -2,12 +2,8 @@
 using EmployeeReview.Application.Services;
 using EmployeeReview.Infrastructure.Security;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
+using Asp.Versioning;
 
 namespace EmployeeReview.Api.Controllers
 {
@@ -32,8 +28,7 @@ namespace EmployeeReview.Api.Controllers
             _secretService = secretService ?? throw new ArgumentNullException(nameof(secretService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
-
-        // GET: api/v1/testauth/token
+        
         [HttpGet("token")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]

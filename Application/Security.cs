@@ -1,24 +1,17 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
-using System.Threading.Tasks;
-using EmployeeReview.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using System;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using EmployeeReview.Application.Services;
-
+using Microsoft.AspNetCore.Authentication;
 
 
 namespace EmployeeReview.Infrastructure.Security
@@ -31,7 +24,6 @@ namespace EmployeeReview.Infrastructure.Security
         public const string AdminOrEmployee = "AdminOrEmployee";
         public const string AdminOrReviewerOrEmployee = "AdminOrReviewerOrEmployee";
     }
-    
 
 
     public static class UserRoles
@@ -52,12 +44,10 @@ namespace EmployeeReview.Infrastructure.Security
 
 
 
-    // Requirement for accessing review data
     public class ReviewAccessRequirement : IAuthorizationRequirement
     {
     }
 
-    // Handler for review access requirement
     public class ReviewAccessHandler : AuthorizationHandler<ReviewAccessRequirement>
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, ReviewAccessRequirement requirement)
@@ -174,6 +164,21 @@ namespace EmployeeReview.Infrastructure.Security
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero
                 };
+
+                // Add debugging events
+                options.Events = new JwtBearerEvents
+                {
+                    OnAuthenticationFailed = context =>
+                    {
+                        Console.WriteLine($"JWT Authentication failed: {context.Exception.Message}");
+                        return Task.CompletedTask;
+                    },
+                    OnTokenValidated = context =>
+                    {
+                        Console.WriteLine("JWT Token validated successfully");
+                        return Task.CompletedTask;
+                    }
+                };
             });
         }
     }
@@ -207,30 +212,37 @@ namespace EmployeeReview.Infrastructure.Security
         {
             if (!Request.Headers.TryGetValue(ApiKeyHeaderName, out var apiKeyHeaderValues))
             {
+                Console.WriteLine("No API Key header found");
                 return AuthenticateResult.NoResult();
             }
 
             var providedApiKey = apiKeyHeaderValues.ToString();
             if (string.IsNullOrEmpty(providedApiKey))
             {
+                Console.WriteLine("Empty API Key provided");
                 return AuthenticateResult.NoResult();
             }
 
             var validApiKey = await _secretService.GetSecretAsync("ApiKey");
+            Console.WriteLine($"API Key validation: {providedApiKey.Substring(0, Math.Min(3, providedApiKey.Length))}... vs {validApiKey?.Substring(0, Math.Min(3, validApiKey?.Length ?? 0))}...");
+
             if (providedApiKey != validApiKey)
             {
+                Console.WriteLine("Invalid API Key");
                 return AuthenticateResult.Fail("Invalid API Key");
             }
 
+            // API key valid, create authenticated user
             var claims = new[] {
-                new Claim(ClaimTypes.NameIdentifier, "ApiUser"),
-                new Claim(ClaimTypes.Role, UserRoles.Admin)
-            };
+        new Claim(ClaimTypes.NameIdentifier, "ApiUser"),
+        new Claim(ClaimTypes.Role, UserRoles.Admin)
+    };
 
             var identity = new ClaimsIdentity(claims, Options.AuthenticationType);
             var principal = new ClaimsPrincipal(identity);
             var ticket = new AuthenticationTicket(principal, Options.Scheme);
 
+            Console.WriteLine("API Key authentication successful");
             return AuthenticateResult.Success(ticket);
         }
     }

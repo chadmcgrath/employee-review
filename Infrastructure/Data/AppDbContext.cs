@@ -1,8 +1,6 @@
 ﻿using EmployeeReview.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Reflection.Emit;
 
 namespace EmployeeReview.Infrastructure.Data
 {

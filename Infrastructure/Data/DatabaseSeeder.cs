@@ -22,7 +22,7 @@ namespace EmployeeReview.Infrastructure.Data
             if (!env.IsDevelopment())
                 return;
 
-            // Apply migrations
+            await context.Database.EnsureCreatedAsync();
             await context.Database.MigrateAsync();
 
             // Check if database already has data
