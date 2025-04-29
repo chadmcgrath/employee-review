@@ -1954,3 +1954,475 @@ FROM "Employees" AS "e" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFramework
 [2025-04-29 15:44:46.150 -04:00 INF] Executed endpoint 'EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview)' {"EventId":{"Id":1,"Name":"ExecutedEndpoint"},"SourceContext":"Microsoft.AspNetCore.Routing.EndpointMiddleware","RequestId":"0HNC7AOTGT18R:00000001","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7AOTGT18R"}
 [2025-04-29 15:44:46.154 -04:00 INF] HTTP GET /api/v1/Employees responded 200 in 17867.3091 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNC7AOTGT18R:00000001","ConnectionId":"0HNC7AOTGT18R"}
 [2025-04-29 15:44:46.160 -04:00 INF] Request finished HTTP/2 GET https://localhost:7289/api/v1/Employees?pageNumber=1&pageSize=10 - 200 null application/json; charset=utf-8 17893.7738ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7AOTGT18R:00000001","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7AOTGT18R"}
+[2025-04-29 15:48:29.459 -04:00 INF] Executed DbCommand (14ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 15:48:29.507 -04:00 INF] No migrations were found in assembly 'Infrastructure'. A migration needs to be added before the database can be updated. {"EventId":{"Id":20406,"Name":"Microsoft.EntityFrameworkCore.Migrations.MigrationsNotFound"},"SourceContext":"Microsoft.EntityFrameworkCore.Migrations"}
+[2025-04-29 15:48:29.519 -04:00 INF] Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long. {"EventId":{"Id":20411,"Name":"Microsoft.EntityFrameworkCore.Migrations.AcquiringMigrationLock"},"SourceContext":"Microsoft.EntityFrameworkCore.Migrations"}
+[2025-04-29 15:48:29.527 -04:00 INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsLock' AND "type" = 'table'; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 15:48:29.533 -04:00 INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+INSERT OR IGNORE INTO "__EFMigrationsLock"("Id", "Timestamp") VALUES(1, '2025-04-29 19:48:29.5313537+00:00');
+SELECT changes(); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 15:48:29.615 -04:00 INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
+    "ProductVersion" TEXT NOT NULL
+); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 15:48:29.626 -04:00 INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsHistory' AND "type" = 'table'; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 15:48:29.633 -04:00 INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId"; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 15:48:29.640 -04:00 INF] No migrations were applied. The database is already up to date. {"EventId":{"Id":20405,"Name":"Microsoft.EntityFrameworkCore.Migrations.MigrationsNotApplied"},"SourceContext":"Microsoft.EntityFrameworkCore.Migrations"}
+[2025-04-29 15:48:29.646 -04:00 INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+DELETE FROM "__EFMigrationsLock"; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 15:48:29.795 -04:00 INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Employees" AS "e") {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 15:48:29.827 -04:00 INF] User profile is available. Using 'C:\Users\chadm\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest. {"EventId":{"Id":63,"Name":"UsingProfileAsKeyRepositoryWithDPAPI"},"SourceContext":"Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager"}
+[2025-04-29 15:48:30.008 -04:00 INF] Now listening on: https://localhost:7289 {"EventId":{"Id":14,"Name":"ListeningOnAddress"},"SourceContext":"Microsoft.Hosting.Lifetime"}
+[2025-04-29 15:48:30.011 -04:00 INF] Now listening on: http://localhost:5004 {"EventId":{"Id":14,"Name":"ListeningOnAddress"},"SourceContext":"Microsoft.Hosting.Lifetime"}
+[2025-04-29 15:48:30.088 -04:00 INF] Application started. Press Ctrl+C to shut down. {"SourceContext":"Microsoft.Hosting.Lifetime"}
+[2025-04-29 15:48:30.090 -04:00 INF] Hosting environment: Development {"SourceContext":"Microsoft.Hosting.Lifetime"}
+[2025-04-29 15:48:30.091 -04:00 INF] Content root path: C:\source\EmployeeReview\EmployeeReview {"SourceContext":"Microsoft.Hosting.Lifetime"}
+[2025-04-29 15:48:30.787 -04:00 INF] Request starting HTTP/2 GET https://localhost:7289/swagger/index.html - null null {"EventId":{"Id":1},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7AR8I0C4V:00000001","RequestPath":"/swagger/index.html","ConnectionId":"0HNC7AR8I0C4V"}
+[2025-04-29 15:48:30.932 -04:00 INF] Request finished HTTP/2 GET https://localhost:7289/swagger/index.html - 200 null text/html;charset=utf-8 150.222ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7AR8I0C4V:00000001","RequestPath":"/swagger/index.html","ConnectionId":"0HNC7AR8I0C4V"}
+[2025-04-29 15:48:30.938 -04:00 INF] Request starting HTTP/2 GET https://localhost:7289/_framework/aspnetcore-browser-refresh.js - null null {"EventId":{"Id":1},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7AR8I0C4V:00000003","RequestPath":"/_framework/aspnetcore-browser-refresh.js","ConnectionId":"0HNC7AR8I0C4V"}
+[2025-04-29 15:48:30.939 -04:00 INF] Request starting HTTP/2 GET https://localhost:7289/_vs/browserLink - null null {"EventId":{"Id":1},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7AR8I0C4V:00000005","RequestPath":"/_vs/browserLink","ConnectionId":"0HNC7AR8I0C4V"}
+[2025-04-29 15:48:30.956 -04:00 INF] Request finished HTTP/2 GET https://localhost:7289/_framework/aspnetcore-browser-refresh.js - 200 13780 application/javascript; charset=utf-8 17.348ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7AR8I0C4V:00000003","RequestPath":"/_framework/aspnetcore-browser-refresh.js","ConnectionId":"0HNC7AR8I0C4V"}
+[2025-04-29 15:48:30.984 -04:00 INF] Request finished HTTP/2 GET https://localhost:7289/_vs/browserLink - 200 null text/javascript; charset=UTF-8 45.4805ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7AR8I0C4V:00000005","RequestPath":"/_vs/browserLink","ConnectionId":"0HNC7AR8I0C4V"}
+[2025-04-29 15:48:31.066 -04:00 INF] Request starting HTTP/2 GET https://localhost:7289/swagger/v1/swagger.json - null null {"EventId":{"Id":1},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7AR8I0C4V:00000007","RequestPath":"/swagger/v1/swagger.json","ConnectionId":"0HNC7AR8I0C4V"}
+[2025-04-29 15:48:31.089 -04:00 INF] Request finished HTTP/2 GET https://localhost:7289/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 23.5519ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7AR8I0C4V:00000007","RequestPath":"/swagger/v1/swagger.json","ConnectionId":"0HNC7AR8I0C4V"}
+[2025-04-29 15:48:41.192 -04:00 INF] Request starting HTTP/2 GET https://localhost:7289/api/v1/Employees?pageNumber=1&pageSize=10 - null null {"EventId":{"Id":1},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7AR8I0C50:00000001","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7AR8I0C50"}
+[2025-04-29 15:48:41.279 -04:00 INF] Executing endpoint 'EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview)' {"EventId":{"Name":"ExecutingEndpoint"},"SourceContext":"Microsoft.AspNetCore.Routing.EndpointMiddleware","RequestId":"0HNC7AR8I0C50:00000001","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7AR8I0C50"}
+[2025-04-29 15:48:41.303 -04:00 INF] Route matched with {action = "GetEmployees", controller = "Employees"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetEmployees(Int32, Int32, System.String, System.String) on controller EmployeeReview.Api.Controllers.REST.EmployeesController (EmployeeReview). {"EventId":{"Id":102,"Name":"ControllerActionExecuting"},"SourceContext":"Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker","ActionId":"8a877de1-71cf-4b09-9c83-55d9477a1aa2","ActionName":"EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview)","RequestId":"0HNC7AR8I0C50:00000001","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7AR8I0C50"}
+[2025-04-29 15:48:41.406 -04:00 INF] Getting employees with pageNumber=1, pageSize=10, searchTerm=null, department=null {"SourceContext":"EmployeeReview.Api.Controllers.REST.EmployeesController","ActionId":"8a877de1-71cf-4b09-9c83-55d9477a1aa2","ActionName":"EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview)","RequestId":"0HNC7AR8I0C50:00000001","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7AR8I0C50"}
+[2025-04-29 15:48:41.471 -04:00 INF] Executed DbCommand (2ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "e"."Id", "e"."DateOfJoining", "e"."Department", "e"."Email", "e"."IsActive", "e"."Name"
+FROM "Employees" AS "e"
+WHERE "e"."IsActive"
+ORDER BY "e"."Name"
+LIMIT @__p_1 OFFSET @__p_0 {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"8a877de1-71cf-4b09-9c83-55d9477a1aa2","ActionName":"EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview)","RequestId":"0HNC7AR8I0C50:00000001","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7AR8I0C50"}
+[2025-04-29 15:48:41.535 -04:00 INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Employees" AS "e" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"8a877de1-71cf-4b09-9c83-55d9477a1aa2","ActionName":"EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview)","RequestId":"0HNC7AR8I0C50:00000001","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7AR8I0C50"}
+[2025-04-29 15:48:41.556 -04:00 INF] Executing OkObjectResult, writing value of type 'EmployeeReview.Application.DTOs.PaginatedListDto`1[[EmployeeReview.Application.DTOs.EmployeeDto, Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'. {"EventId":{"Id":1,"Name":"ObjectResultExecuting"},"SourceContext":"Microsoft.AspNetCore.Mvc.Infrastructure.ObjectResultExecutor","ActionId":"8a877de1-71cf-4b09-9c83-55d9477a1aa2","ActionName":"EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview)","RequestId":"0HNC7AR8I0C50:00000001","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7AR8I0C50"}
+[2025-04-29 15:48:41.573 -04:00 INF] Executed action EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview) in 259.1895ms {"EventId":{"Id":105,"Name":"ActionExecuted"},"SourceContext":"Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker","RequestId":"0HNC7AR8I0C50:00000001","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7AR8I0C50"}
+[2025-04-29 15:48:41.576 -04:00 INF] Executed endpoint 'EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview)' {"EventId":{"Id":1,"Name":"ExecutedEndpoint"},"SourceContext":"Microsoft.AspNetCore.Routing.EndpointMiddleware","RequestId":"0HNC7AR8I0C50:00000001","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7AR8I0C50"}
+[2025-04-29 15:48:41.581 -04:00 INF] HTTP GET /api/v1/Employees responded 200 in 369.7157 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNC7AR8I0C50:00000001","ConnectionId":"0HNC7AR8I0C50"}
+[2025-04-29 15:48:41.587 -04:00 INF] Request finished HTTP/2 GET https://localhost:7289/api/v1/Employees?pageNumber=1&pageSize=10 - 200 null application/json; charset=utf-8 395.1883ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7AR8I0C50:00000001","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7AR8I0C50"}
+[2025-04-29 16:11:05.121 -04:00 INF] Executed DbCommand (12ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 16:11:05.173 -04:00 INF] No migrations were found in assembly 'Infrastructure'. A migration needs to be added before the database can be updated. {"EventId":{"Id":20406,"Name":"Microsoft.EntityFrameworkCore.Migrations.MigrationsNotFound"},"SourceContext":"Microsoft.EntityFrameworkCore.Migrations"}
+[2025-04-29 16:11:05.179 -04:00 INF] Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long. {"EventId":{"Id":20411,"Name":"Microsoft.EntityFrameworkCore.Migrations.AcquiringMigrationLock"},"SourceContext":"Microsoft.EntityFrameworkCore.Migrations"}
+[2025-04-29 16:11:05.185 -04:00 INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsLock' AND "type" = 'table'; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 16:11:05.192 -04:00 INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+INSERT OR IGNORE INTO "__EFMigrationsLock"("Id", "Timestamp") VALUES(1, '2025-04-29 20:11:05.1898635+00:00');
+SELECT changes(); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 16:11:05.279 -04:00 INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
+    "ProductVersion" TEXT NOT NULL
+); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 16:11:05.290 -04:00 INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsHistory' AND "type" = 'table'; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 16:11:05.296 -04:00 INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId"; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 16:11:05.304 -04:00 INF] No migrations were applied. The database is already up to date. {"EventId":{"Id":20405,"Name":"Microsoft.EntityFrameworkCore.Migrations.MigrationsNotApplied"},"SourceContext":"Microsoft.EntityFrameworkCore.Migrations"}
+[2025-04-29 16:11:05.306 -04:00 INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+DELETE FROM "__EFMigrationsLock"; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 16:11:05.479 -04:00 INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Employees" AS "e") {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 16:11:05.531 -04:00 INF] User profile is available. Using 'C:\Users\chadm\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest. {"EventId":{"Id":63,"Name":"UsingProfileAsKeyRepositoryWithDPAPI"},"SourceContext":"Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager"}
+[2025-04-29 16:11:05.835 -04:00 INF] Now listening on: https://localhost:7289 {"EventId":{"Id":14,"Name":"ListeningOnAddress"},"SourceContext":"Microsoft.Hosting.Lifetime"}
+[2025-04-29 16:11:05.837 -04:00 INF] Now listening on: http://localhost:5004 {"EventId":{"Id":14,"Name":"ListeningOnAddress"},"SourceContext":"Microsoft.Hosting.Lifetime"}
+[2025-04-29 16:11:05.919 -04:00 INF] Application started. Press Ctrl+C to shut down. {"SourceContext":"Microsoft.Hosting.Lifetime"}
+[2025-04-29 16:11:05.920 -04:00 INF] Hosting environment: Development {"SourceContext":"Microsoft.Hosting.Lifetime"}
+[2025-04-29 16:11:05.923 -04:00 INF] Content root path: C:\source\EmployeeReview\EmployeeReview {"SourceContext":"Microsoft.Hosting.Lifetime"}
+[2025-04-29 16:11:06.410 -04:00 INF] Request starting HTTP/2 GET https://localhost:7289/swagger/index.html - null null {"EventId":{"Id":1},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7B7SIJ6FB:00000001","RequestPath":"/swagger/index.html","ConnectionId":"0HNC7B7SIJ6FB"}
+[2025-04-29 16:11:06.573 -04:00 INF] Request finished HTTP/2 GET https://localhost:7289/swagger/index.html - 200 null text/html;charset=utf-8 169.4824ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7B7SIJ6FB:00000001","RequestPath":"/swagger/index.html","ConnectionId":"0HNC7B7SIJ6FB"}
+[2025-04-29 16:11:06.582 -04:00 INF] Request starting HTTP/2 GET https://localhost:7289/_framework/aspnetcore-browser-refresh.js - null null {"EventId":{"Id":1},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7B7SIJ6FB:00000003","RequestPath":"/_framework/aspnetcore-browser-refresh.js","ConnectionId":"0HNC7B7SIJ6FB"}
+[2025-04-29 16:11:06.584 -04:00 INF] Request starting HTTP/2 GET https://localhost:7289/_vs/browserLink - null null {"EventId":{"Id":1},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7B7SIJ6FB:00000005","RequestPath":"/_vs/browserLink","ConnectionId":"0HNC7B7SIJ6FB"}
+[2025-04-29 16:11:06.591 -04:00 INF] Request finished HTTP/2 GET https://localhost:7289/_framework/aspnetcore-browser-refresh.js - 200 13780 application/javascript; charset=utf-8 8.8848ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7B7SIJ6FB:00000003","RequestPath":"/_framework/aspnetcore-browser-refresh.js","ConnectionId":"0HNC7B7SIJ6FB"}
+[2025-04-29 16:11:06.626 -04:00 INF] Request finished HTTP/2 GET https://localhost:7289/_vs/browserLink - 200 null text/javascript; charset=UTF-8 41.9097ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7B7SIJ6FB:00000005","RequestPath":"/_vs/browserLink","ConnectionId":"0HNC7B7SIJ6FB"}
+[2025-04-29 16:11:06.708 -04:00 INF] Request starting HTTP/2 GET https://localhost:7289/swagger/v1/swagger.json - null null {"EventId":{"Id":1},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7B7SIJ6FB:00000007","RequestPath":"/swagger/v1/swagger.json","ConnectionId":"0HNC7B7SIJ6FB"}
+[2025-04-29 16:11:06.737 -04:00 INF] Request finished HTTP/2 GET https://localhost:7289/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 29.5828ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7B7SIJ6FB:00000007","RequestPath":"/swagger/v1/swagger.json","ConnectionId":"0HNC7B7SIJ6FB"}
+[2025-04-29 16:11:22.373 -04:00 INF] Request starting HTTP/2 GET https://localhost:7289/api/v1/Employees?pageNumber=1&pageSize=10 - null null {"EventId":{"Id":1},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7B7SIJ6FB:00000009","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7B7SIJ6FB"}
+[2025-04-29 16:11:22.457 -04:00 INF] Executing endpoint 'EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview)' {"EventId":{"Name":"ExecutingEndpoint"},"SourceContext":"Microsoft.AspNetCore.Routing.EndpointMiddleware","RequestId":"0HNC7B7SIJ6FB:00000009","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7B7SIJ6FB"}
+[2025-04-29 16:11:22.479 -04:00 INF] Route matched with {action = "GetEmployees", controller = "Employees"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetEmployees(Int32, Int32, System.String, System.String) on controller EmployeeReview.Api.Controllers.REST.EmployeesController (EmployeeReview). {"EventId":{"Id":102,"Name":"ControllerActionExecuting"},"SourceContext":"Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker","ActionId":"a1411e4e-5f5f-46c7-a287-26cfe73a57c9","ActionName":"EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview)","RequestId":"0HNC7B7SIJ6FB:00000009","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7B7SIJ6FB"}
+[2025-04-29 16:11:22.574 -04:00 INF] Getting employees with pageNumber=1, pageSize=10, searchTerm=null, department=null {"SourceContext":"EmployeeReview.Api.Controllers.REST.EmployeesController","ActionId":"a1411e4e-5f5f-46c7-a287-26cfe73a57c9","ActionName":"EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview)","RequestId":"0HNC7B7SIJ6FB:00000009","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7B7SIJ6FB"}
+[2025-04-29 16:11:22.642 -04:00 INF] Executed DbCommand (2ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "e"."Id", "e"."DateOfJoining", "e"."Department", "e"."Email", "e"."IsActive", "e"."Name"
+FROM "Employees" AS "e"
+WHERE "e"."IsActive"
+ORDER BY "e"."Name"
+LIMIT @__p_1 OFFSET @__p_0 {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"a1411e4e-5f5f-46c7-a287-26cfe73a57c9","ActionName":"EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview)","RequestId":"0HNC7B7SIJ6FB:00000009","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7B7SIJ6FB"}
+[2025-04-29 16:11:22.706 -04:00 INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Employees" AS "e" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"a1411e4e-5f5f-46c7-a287-26cfe73a57c9","ActionName":"EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview)","RequestId":"0HNC7B7SIJ6FB:00000009","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7B7SIJ6FB"}
+[2025-04-29 16:11:22.728 -04:00 INF] Executing OkObjectResult, writing value of type 'EmployeeReview.Application.DTOs.PaginatedListDto`1[[EmployeeReview.Application.DTOs.EmployeeDto, Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'. {"EventId":{"Id":1,"Name":"ObjectResultExecuting"},"SourceContext":"Microsoft.AspNetCore.Mvc.Infrastructure.ObjectResultExecutor","ActionId":"a1411e4e-5f5f-46c7-a287-26cfe73a57c9","ActionName":"EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview)","RequestId":"0HNC7B7SIJ6FB:00000009","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7B7SIJ6FB"}
+[2025-04-29 16:11:22.746 -04:00 INF] Executed action EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview) in 256.3157ms {"EventId":{"Id":105,"Name":"ActionExecuted"},"SourceContext":"Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker","RequestId":"0HNC7B7SIJ6FB:00000009","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7B7SIJ6FB"}
+[2025-04-29 16:11:22.750 -04:00 INF] Executed endpoint 'EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview)' {"EventId":{"Id":1,"Name":"ExecutedEndpoint"},"SourceContext":"Microsoft.AspNetCore.Routing.EndpointMiddleware","RequestId":"0HNC7B7SIJ6FB:00000009","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7B7SIJ6FB"}
+[2025-04-29 16:11:22.755 -04:00 INF] HTTP GET /api/v1/Employees responded 200 in 363.5347 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNC7B7SIJ6FB:00000009","ConnectionId":"0HNC7B7SIJ6FB"}
+[2025-04-29 16:11:22.759 -04:00 INF] Request finished HTTP/2 GET https://localhost:7289/api/v1/Employees?pageNumber=1&pageSize=10 - 200 null application/json; charset=utf-8 386.4313ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7B7SIJ6FB:00000009","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7B7SIJ6FB"}
+[2025-04-29 16:27:59.532 -04:00 INF] Executed DbCommand (12ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 16:27:59.573 -04:00 INF] No migrations were found in assembly 'Infrastructure'. A migration needs to be added before the database can be updated. {"EventId":{"Id":20406,"Name":"Microsoft.EntityFrameworkCore.Migrations.MigrationsNotFound"},"SourceContext":"Microsoft.EntityFrameworkCore.Migrations"}
+[2025-04-29 16:27:59.580 -04:00 INF] Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long. {"EventId":{"Id":20411,"Name":"Microsoft.EntityFrameworkCore.Migrations.AcquiringMigrationLock"},"SourceContext":"Microsoft.EntityFrameworkCore.Migrations"}
+[2025-04-29 16:27:59.588 -04:00 INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsLock' AND "type" = 'table'; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 16:27:59.596 -04:00 INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+INSERT OR IGNORE INTO "__EFMigrationsLock"("Id", "Timestamp") VALUES(1, '2025-04-29 20:27:59.5938309+00:00');
+SELECT changes(); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 16:27:59.703 -04:00 INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
+    "ProductVersion" TEXT NOT NULL
+); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 16:27:59.714 -04:00 INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsHistory' AND "type" = 'table'; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 16:27:59.720 -04:00 INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId"; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 16:27:59.728 -04:00 INF] No migrations were applied. The database is already up to date. {"EventId":{"Id":20405,"Name":"Microsoft.EntityFrameworkCore.Migrations.MigrationsNotApplied"},"SourceContext":"Microsoft.EntityFrameworkCore.Migrations"}
+[2025-04-29 16:27:59.732 -04:00 INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+DELETE FROM "__EFMigrationsLock"; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 16:27:59.898 -04:00 INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Employees" AS "e") {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 16:27:59.926 -04:00 INF] User profile is available. Using 'C:\Users\chadm\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest. {"EventId":{"Id":63,"Name":"UsingProfileAsKeyRepositoryWithDPAPI"},"SourceContext":"Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager"}
+[2025-04-29 16:28:00.144 -04:00 INF] Now listening on: https://localhost:7289 {"EventId":{"Id":14,"Name":"ListeningOnAddress"},"SourceContext":"Microsoft.Hosting.Lifetime"}
+[2025-04-29 16:28:00.146 -04:00 INF] Now listening on: http://localhost:5004 {"EventId":{"Id":14,"Name":"ListeningOnAddress"},"SourceContext":"Microsoft.Hosting.Lifetime"}
+[2025-04-29 16:28:00.307 -04:00 INF] Application started. Press Ctrl+C to shut down. {"SourceContext":"Microsoft.Hosting.Lifetime"}
+[2025-04-29 16:28:00.308 -04:00 INF] Hosting environment: Development {"SourceContext":"Microsoft.Hosting.Lifetime"}
+[2025-04-29 16:28:00.309 -04:00 INF] Content root path: C:\source\EmployeeReview\EmployeeReview {"SourceContext":"Microsoft.Hosting.Lifetime"}
+[2025-04-29 16:28:00.984 -04:00 INF] Request starting HTTP/2 GET https://localhost:7289/swagger/index.html - null null {"EventId":{"Id":1},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7BHAVH9NK:00000001","RequestPath":"/swagger/index.html","ConnectionId":"0HNC7BHAVH9NK"}
+[2025-04-29 16:28:01.148 -04:00 INF] Request finished HTTP/2 GET https://localhost:7289/swagger/index.html - 200 null text/html;charset=utf-8 172.1872ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7BHAVH9NK:00000001","RequestPath":"/swagger/index.html","ConnectionId":"0HNC7BHAVH9NK"}
+[2025-04-29 16:28:01.157 -04:00 INF] Request starting HTTP/2 GET https://localhost:7289/_framework/aspnetcore-browser-refresh.js - null null {"EventId":{"Id":1},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7BHAVH9NK:00000003","RequestPath":"/_framework/aspnetcore-browser-refresh.js","ConnectionId":"0HNC7BHAVH9NK"}
+[2025-04-29 16:28:01.159 -04:00 INF] Request starting HTTP/2 GET https://localhost:7289/_vs/browserLink - null null {"EventId":{"Id":1},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7BHAVH9NK:00000005","RequestPath":"/_vs/browserLink","ConnectionId":"0HNC7BHAVH9NK"}
+[2025-04-29 16:28:01.172 -04:00 INF] Request finished HTTP/2 GET https://localhost:7289/_framework/aspnetcore-browser-refresh.js - 200 13780 application/javascript; charset=utf-8 14.6768ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7BHAVH9NK:00000003","RequestPath":"/_framework/aspnetcore-browser-refresh.js","ConnectionId":"0HNC7BHAVH9NK"}
+[2025-04-29 16:28:01.212 -04:00 INF] Request finished HTTP/2 GET https://localhost:7289/_vs/browserLink - 200 null text/javascript; charset=UTF-8 52.5171ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7BHAVH9NK:00000005","RequestPath":"/_vs/browserLink","ConnectionId":"0HNC7BHAVH9NK"}
+[2025-04-29 16:28:01.293 -04:00 INF] Request starting HTTP/2 GET https://localhost:7289/swagger/v1/swagger.json - null null {"EventId":{"Id":1},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7BHAVH9NK:00000007","RequestPath":"/swagger/v1/swagger.json","ConnectionId":"0HNC7BHAVH9NK"}
+[2025-04-29 16:28:01.317 -04:00 INF] Request finished HTTP/2 GET https://localhost:7289/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 24.6463ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7BHAVH9NK:00000007","RequestPath":"/swagger/v1/swagger.json","ConnectionId":"0HNC7BHAVH9NK"}
+[2025-04-29 16:28:11.147 -04:00 INF] Request starting HTTP/2 GET https://localhost:7289/api/v1/Employees?pageNumber=1&pageSize=10 - null null {"EventId":{"Id":1},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7BHAVH9NK:00000009","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7BHAVH9NK"}
+[2025-04-29 16:28:11.225 -04:00 INF] Executing endpoint 'EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview)' {"EventId":{"Name":"ExecutingEndpoint"},"SourceContext":"Microsoft.AspNetCore.Routing.EndpointMiddleware","RequestId":"0HNC7BHAVH9NK:00000009","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7BHAVH9NK"}
+[2025-04-29 16:28:11.253 -04:00 INF] Route matched with {action = "GetEmployees", controller = "Employees"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetEmployees(Int32, Int32, System.String, System.String) on controller EmployeeReview.Api.Controllers.REST.EmployeesController (EmployeeReview). {"EventId":{"Id":102,"Name":"ControllerActionExecuting"},"SourceContext":"Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker","ActionId":"3f814dff-2958-458c-a86e-c9dc309dcad6","ActionName":"EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview)","RequestId":"0HNC7BHAVH9NK:00000009","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7BHAVH9NK"}
+[2025-04-29 16:28:11.351 -04:00 INF] Getting employees with pageNumber=1, pageSize=10, searchTerm=null, department=null {"SourceContext":"EmployeeReview.Api.Controllers.REST.EmployeesController","ActionId":"3f814dff-2958-458c-a86e-c9dc309dcad6","ActionName":"EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview)","RequestId":"0HNC7BHAVH9NK:00000009","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7BHAVH9NK"}
+[2025-04-29 16:28:11.427 -04:00 INF] Executed DbCommand (2ms) [Parameters=[@__p_1='?' (DbType = Int32), @__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "e"."Id", "e"."DateOfJoining", "e"."Department", "e"."Email", "e"."IsActive", "e"."Name"
+FROM "Employees" AS "e"
+WHERE "e"."IsActive"
+ORDER BY "e"."Name"
+LIMIT @__p_1 OFFSET @__p_0 {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"3f814dff-2958-458c-a86e-c9dc309dcad6","ActionName":"EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview)","RequestId":"0HNC7BHAVH9NK:00000009","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7BHAVH9NK"}
+[2025-04-29 16:28:11.490 -04:00 INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Employees" AS "e" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"3f814dff-2958-458c-a86e-c9dc309dcad6","ActionName":"EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview)","RequestId":"0HNC7BHAVH9NK:00000009","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7BHAVH9NK"}
+[2025-04-29 16:28:11.509 -04:00 INF] Executing OkObjectResult, writing value of type 'EmployeeReview.Application.DTOs.PaginatedListDto`1[[EmployeeReview.Application.DTOs.EmployeeDto, Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'. {"EventId":{"Id":1,"Name":"ObjectResultExecuting"},"SourceContext":"Microsoft.AspNetCore.Mvc.Infrastructure.ObjectResultExecutor","ActionId":"3f814dff-2958-458c-a86e-c9dc309dcad6","ActionName":"EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview)","RequestId":"0HNC7BHAVH9NK:00000009","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7BHAVH9NK"}
+[2025-04-29 16:28:11.525 -04:00 INF] Executed action EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview) in 265.9744ms {"EventId":{"Id":105,"Name":"ActionExecuted"},"SourceContext":"Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker","RequestId":"0HNC7BHAVH9NK:00000009","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7BHAVH9NK"}
+[2025-04-29 16:28:11.530 -04:00 INF] Executed endpoint 'EmployeeReview.Api.Controllers.REST.EmployeesController.GetEmployees (EmployeeReview)' {"EventId":{"Id":1,"Name":"ExecutedEndpoint"},"SourceContext":"Microsoft.AspNetCore.Routing.EndpointMiddleware","RequestId":"0HNC7BHAVH9NK:00000009","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7BHAVH9NK"}
+[2025-04-29 16:28:11.534 -04:00 INF] HTTP GET /api/v1/Employees responded 200 in 372.3907 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNC7BHAVH9NK:00000009","ConnectionId":"0HNC7BHAVH9NK"}
+[2025-04-29 16:28:11.538 -04:00 INF] Request finished HTTP/2 GET https://localhost:7289/api/v1/Employees?pageNumber=1&pageSize=10 - 200 null application/json; charset=utf-8 391.1689ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7BHAVH9NK:00000009","RequestPath":"/api/v1/Employees","ConnectionId":"0HNC7BHAVH9NK"}
+[2025-04-29 16:28:21.100 -04:00 INF] Request starting HTTP/2 POST https://localhost:7289/api/v1/Reviews - application/json 122 {"EventId":{"Id":1},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7BHAVH9NL:00000001","RequestPath":"/api/v1/Reviews","ConnectionId":"0HNC7BHAVH9NL"}
+[2025-04-29 16:28:21.130 -04:00 INF] CORS policy execution successful. {"EventId":{"Id":4,"Name":"PolicySuccess"},"SourceContext":"Microsoft.AspNetCore.Cors.Infrastructure.CorsService","RequestId":"0HNC7BHAVH9NL:00000001","RequestPath":"/api/v1/Reviews","ConnectionId":"0HNC7BHAVH9NL"}
+[2025-04-29 16:28:21.141 -04:00 INF] Executing endpoint 'EmployeeReview.Api.Controllers.REST.ReviewsController.CreateReview (EmployeeReview)' {"EventId":{"Name":"ExecutingEndpoint"},"SourceContext":"Microsoft.AspNetCore.Routing.EndpointMiddleware","RequestId":"0HNC7BHAVH9NL:00000001","RequestPath":"/api/v1/Reviews","ConnectionId":"0HNC7BHAVH9NL"}
+[2025-04-29 16:28:21.150 -04:00 INF] Route matched with {action = "CreateReview", controller = "Reviews"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] CreateReview(EmployeeReview.Application.DTOs.CreatePerformanceReviewDto) on controller EmployeeReview.Api.Controllers.REST.ReviewsController (EmployeeReview). {"EventId":{"Id":102,"Name":"ControllerActionExecuting"},"SourceContext":"Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker","ActionId":"399ba89c-d597-43a1-b676-d197f2457b85","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.CreateReview (EmployeeReview)","RequestId":"0HNC7BHAVH9NL:00000001","RequestPath":"/api/v1/Reviews","ConnectionId":"0HNC7BHAVH9NL"}
+[2025-04-29 16:28:26.557 -04:00 INF] Creating a new review for employee id=0 by reviewer id=0 {"SourceContext":"EmployeeReview.Api.Controllers.REST.ReviewsController","ActionId":"399ba89c-d597-43a1-b676-d197f2457b85","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.CreateReview (EmployeeReview)","RequestId":"0HNC7BHAVH9NL:00000001","RequestPath":"/api/v1/Reviews","ConnectionId":"0HNC7BHAVH9NL"}
+[2025-04-29 16:28:26.633 -04:00 INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "e"."Id", "e"."DateOfJoining", "e"."Department", "e"."Email", "e"."IsActive", "e"."Name"
+FROM "Employees" AS "e"
+WHERE "e"."Id" = @__p_0
+LIMIT 1 {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"399ba89c-d597-43a1-b676-d197f2457b85","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.CreateReview (EmployeeReview)","RequestId":"0HNC7BHAVH9NL:00000001","RequestPath":"/api/v1/Reviews","ConnectionId":"0HNC7BHAVH9NL"}
+[2025-04-29 16:28:26.638 -04:00 INF] Executing NotFoundObjectResult, writing value of type 'System.String'. {"EventId":{"Id":1,"Name":"ObjectResultExecuting"},"SourceContext":"Microsoft.AspNetCore.Mvc.Infrastructure.ObjectResultExecutor","ActionId":"399ba89c-d597-43a1-b676-d197f2457b85","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.CreateReview (EmployeeReview)","RequestId":"0HNC7BHAVH9NL:00000001","RequestPath":"/api/v1/Reviews","ConnectionId":"0HNC7BHAVH9NL"}
+[2025-04-29 16:28:26.642 -04:00 INF] Executed action EmployeeReview.Api.Controllers.REST.ReviewsController.CreateReview (EmployeeReview) in 5485.9718ms {"EventId":{"Id":105,"Name":"ActionExecuted"},"SourceContext":"Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker","RequestId":"0HNC7BHAVH9NL:00000001","RequestPath":"/api/v1/Reviews","ConnectionId":"0HNC7BHAVH9NL"}
+[2025-04-29 16:28:26.649 -04:00 INF] Executed endpoint 'EmployeeReview.Api.Controllers.REST.ReviewsController.CreateReview (EmployeeReview)' {"EventId":{"Id":1,"Name":"ExecutedEndpoint"},"SourceContext":"Microsoft.AspNetCore.Routing.EndpointMiddleware","RequestId":"0HNC7BHAVH9NL:00000001","RequestPath":"/api/v1/Reviews","ConnectionId":"0HNC7BHAVH9NL"}
+[2025-04-29 16:28:26.651 -04:00 INF] HTTP POST /api/v1/Reviews responded 404 in 5513.5005 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNC7BHAVH9NL:00000001","ConnectionId":"0HNC7BHAVH9NL"}
+[2025-04-29 16:28:26.653 -04:00 INF] Request finished HTTP/2 POST https://localhost:7289/api/v1/Reviews - 404 null text/plain; charset=utf-8 5553.0703ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7BHAVH9NL:00000001","RequestPath":"/api/v1/Reviews","ConnectionId":"0HNC7BHAVH9NL"}
+[2025-04-29 16:29:16.900 -04:00 INF] Request starting HTTP/2 GET https://localhost:7289/api/v1/Reviews/analytics - null null {"EventId":{"Id":1},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7BHAVH9NM:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NM"}
+[2025-04-29 16:29:16.926 -04:00 INF] Executing endpoint 'EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)' {"EventId":{"Name":"ExecutingEndpoint"},"SourceContext":"Microsoft.AspNetCore.Routing.EndpointMiddleware","RequestId":"0HNC7BHAVH9NM:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NM"}
+[2025-04-29 16:29:16.933 -04:00 INF] Route matched with {action = "GetAnalytics", controller = "Reviews"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAnalytics() on controller EmployeeReview.Api.Controllers.REST.ReviewsController (EmployeeReview). {"EventId":{"Id":102,"Name":"ControllerActionExecuting"},"SourceContext":"Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NM:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NM"}
+[2025-04-29 16:29:19.303 -04:00 INF] Getting performance analytics {"SourceContext":"EmployeeReview.Api.Controllers.REST.ReviewsController","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NM:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NM"}
+[2025-04-29 16:29:19.317 -04:00 INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "e"."Id", "e"."DateOfJoining", "e"."Department", "e"."Email", "e"."IsActive", "e"."Name"
+FROM "Employees" AS "e" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NM:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NM"}
+[2025-04-29 16:29:19.366 -04:00 INF] Executed DbCommand (1ms) [Parameters=[@__department_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT AVG("p"."Score")
+FROM "PerformanceReviews" AS "p"
+INNER JOIN "Employees" AS "e" ON "p"."EmployeeId" = "e"."Id"
+WHERE "e"."Department" = @__department_0 AND "e"."IsActive" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NM:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NM"}
+[2025-04-29 16:29:19.383 -04:00 INF] Executed DbCommand (0ms) [Parameters=[@__department_0='?' (Size = 9)], CommandType='"Text"', CommandTimeout='30']
+SELECT AVG("p"."Score")
+FROM "PerformanceReviews" AS "p"
+INNER JOIN "Employees" AS "e" ON "p"."EmployeeId" = "e"."Id"
+WHERE "e"."Department" = @__department_0 AND "e"."IsActive" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NM:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NM"}
+[2025-04-29 16:29:19.391 -04:00 INF] Executed DbCommand (0ms) [Parameters=[@__department_0='?' (Size = 2)], CommandType='"Text"', CommandTimeout='30']
+SELECT AVG("p"."Score")
+FROM "PerformanceReviews" AS "p"
+INNER JOIN "Employees" AS "e" ON "p"."EmployeeId" = "e"."Id"
+WHERE "e"."Department" = @__department_0 AND "e"."IsActive" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NM:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NM"}
+[2025-04-29 16:29:19.403 -04:00 INF] Executed DbCommand (0ms) [Parameters=[@__department_0='?' (Size = 16)], CommandType='"Text"', CommandTimeout='30']
+SELECT AVG("p"."Score")
+FROM "PerformanceReviews" AS "p"
+INNER JOIN "Employees" AS "e" ON "p"."EmployeeId" = "e"."Id"
+WHERE "e"."Department" = @__department_0 AND "e"."IsActive" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NM:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NM"}
+[2025-04-29 16:29:19.414 -04:00 INF] Executed DbCommand (0ms) [Parameters=[@__department_0='?' (Size = 2)], CommandType='"Text"', CommandTimeout='30']
+SELECT AVG("p"."Score")
+FROM "PerformanceReviews" AS "p"
+INNER JOIN "Employees" AS "e" ON "p"."EmployeeId" = "e"."Id"
+WHERE "e"."Department" = @__department_0 AND "e"."IsActive" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NM:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NM"}
+[2025-04-29 16:29:19.426 -04:00 INF] Executed DbCommand (0ms) [Parameters=[@__department_0='?' (Size = 10)], CommandType='"Text"', CommandTimeout='30']
+SELECT AVG("p"."Score")
+FROM "PerformanceReviews" AS "p"
+INNER JOIN "Employees" AS "e" ON "p"."EmployeeId" = "e"."Id"
+WHERE "e"."Department" = @__department_0 AND "e"."IsActive" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NM:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NM"}
+[2025-04-29 16:29:19.435 -04:00 INF] Executed DbCommand (0ms) [Parameters=[@__department_0='?' (Size = 3)], CommandType='"Text"', CommandTimeout='30']
+SELECT AVG("p"."Score")
+FROM "PerformanceReviews" AS "p"
+INNER JOIN "Employees" AS "e" ON "p"."EmployeeId" = "e"."Id"
+WHERE "e"."Department" = @__department_0 AND "e"."IsActive" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NM:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NM"}
+[2025-04-29 16:29:19.440 -04:00 INF] Executed DbCommand (0ms) [Parameters=[@__department_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT AVG("p"."Score")
+FROM "PerformanceReviews" AS "p"
+INNER JOIN "Employees" AS "e" ON "p"."EmployeeId" = "e"."Id"
+WHERE "e"."Department" = @__department_0 AND "e"."IsActive" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NM:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NM"}
+[2025-04-29 16:29:19.446 -04:00 INF] Executed DbCommand (0ms) [Parameters=[@__department_0='?' (Size = 7)], CommandType='"Text"', CommandTimeout='30']
+SELECT AVG("p"."Score")
+FROM "PerformanceReviews" AS "p"
+INNER JOIN "Employees" AS "e" ON "p"."EmployeeId" = "e"."Id"
+WHERE "e"."Department" = @__department_0 AND "e"."IsActive" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NM:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NM"}
+[2025-04-29 16:29:19.453 -04:00 INF] Executed DbCommand (0ms) [Parameters=[@__department_0='?' (Size = 14)], CommandType='"Text"', CommandTimeout='30']
+SELECT AVG("p"."Score")
+FROM "PerformanceReviews" AS "p"
+INNER JOIN "Employees" AS "e" ON "p"."EmployeeId" = "e"."Id"
+WHERE "e"."Department" = @__department_0 AND "e"."IsActive" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NM:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NM"}
+[2025-04-29 16:29:19.485 -04:00 INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."EmployeeId", "e"."Name", "e"."Department", AVG("p"."Score") AS "AverageScore"
+FROM "PerformanceReviews" AS "p"
+INNER JOIN "Employees" AS "e" ON "p"."EmployeeId" = "e"."Id"
+WHERE "e"."IsActive"
+GROUP BY "p"."EmployeeId", "e"."Name", "e"."Department"
+ORDER BY AVG("p"."Score") DESC
+LIMIT @__p_0 {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NM:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NM"}
+[2025-04-29 16:29:19.520 -04:00 INF] Executed DbCommand (1ms) [Parameters=[@__employeeIds_0='?' (Size = 16)], CommandType='"Text"', CommandTimeout='30']
+SELECT "e"."Id", "e"."DateOfJoining", "e"."Department", "e"."Email", "e"."IsActive", "e"."Name"
+FROM "Employees" AS "e"
+WHERE "e"."Id" IN (
+    SELECT "e0"."value"
+    FROM json_each(@__employeeIds_0) AS "e0"
+) {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NM:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NM"}
+[2025-04-29 16:29:19.635 -04:00 INF] Executed action EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview) in 2695.6676ms {"EventId":{"Id":105,"Name":"ActionExecuted"},"SourceContext":"Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker","RequestId":"0HNC7BHAVH9NM:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NM"}
+[2025-04-29 16:29:19.641 -04:00 INF] Executed endpoint 'EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)' {"EventId":{"Id":1,"Name":"ExecutedEndpoint"},"SourceContext":"Microsoft.AspNetCore.Routing.EndpointMiddleware","RequestId":"0HNC7BHAVH9NM:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NM"}
+[2025-04-29 16:29:19.645 -04:00 ERR] HTTP GET /api/v1/Reviews/analytics responded 500 in 2721.8908 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNC7BHAVH9NM:00000001","ConnectionId":"0HNC7BHAVH9NM"}
+AutoMapper.AutoMapperMappingException: Error mapping types.
+
+Mapping types:
+List`1 -> List`1
+System.Collections.Generic.List`1[[EmployeeReview.Domain.Entities.Employee, Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]] -> System.Collections.Generic.List`1[[EmployeeReview.Application.DTOs.TopPerformerDto, Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]
+ ---> AutoMapper.AutoMapperMappingException: Missing type map configuration or unsupported mapping.
+
+Mapping types:
+Employee -> TopPerformerDto
+EmployeeReview.Domain.Entities.Employee -> EmployeeReview.Application.DTOs.TopPerformerDto
+   at lambda_method133(Closure, Employee, TopPerformerDto, ResolutionContext)
+   at lambda_method132(Closure, Object, List`1, ResolutionContext)
+   --- End of inner exception stack trace ---
+   at lambda_method132(Closure, Object, List`1, ResolutionContext)
+   at EmployeeReview.Application.Services.PerformanceReviewService.GetPerformanceAnalyticsAsync() in C:\source\EmployeeReview\Application\Services\PerformanceReviewService.cs:line 131
+   at EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics() in C:\source\EmployeeReview\EmployeeReview\Controllers\ReviewsController.cs:line 107
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+[2025-04-29 16:29:19.715 -04:00 ERR] An unhandled exception occurred during request execution {"SourceContext":"EmployeeReview.Api.Middleware.ExceptionHandlingMiddleware","RequestId":"0HNC7BHAVH9NM:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NM"}
+AutoMapper.AutoMapperMappingException: Error mapping types.
+
+Mapping types:
+List`1 -> List`1
+System.Collections.Generic.List`1[[EmployeeReview.Domain.Entities.Employee, Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]] -> System.Collections.Generic.List`1[[EmployeeReview.Application.DTOs.TopPerformerDto, Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]
+ ---> AutoMapper.AutoMapperMappingException: Missing type map configuration or unsupported mapping.
+
+Mapping types:
+Employee -> TopPerformerDto
+EmployeeReview.Domain.Entities.Employee -> EmployeeReview.Application.DTOs.TopPerformerDto
+   at lambda_method133(Closure, Employee, TopPerformerDto, ResolutionContext)
+   at lambda_method132(Closure, Object, List`1, ResolutionContext)
+   --- End of inner exception stack trace ---
+   at lambda_method132(Closure, Object, List`1, ResolutionContext)
+   at EmployeeReview.Application.Services.PerformanceReviewService.GetPerformanceAnalyticsAsync() in C:\source\EmployeeReview\Application\Services\PerformanceReviewService.cs:line 131
+   at EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics() in C:\source\EmployeeReview\EmployeeReview\Controllers\ReviewsController.cs:line 107
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+   at EmployeeReview.Api.Middleware.ExceptionHandlingMiddleware.InvokeAsync(HttpContext httpContext) in C:\source\EmployeeReview\EmployeeReview\Middleware\Middleware.cs:line 25
+[2025-04-29 16:29:19.738 -04:00 INF] Request finished HTTP/2 GET https://localhost:7289/api/v1/Reviews/analytics - 500 null application/json 2838.2323ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7BHAVH9NM:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NM"}
+[2025-04-29 16:29:32.609 -04:00 INF] Request starting HTTP/2 GET https://localhost:7289/api/v1/Reviews/analytics - null null {"EventId":{"Id":1},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7BHAVH9NN:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NN"}
+[2025-04-29 16:29:32.627 -04:00 INF] Executing endpoint 'EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)' {"EventId":{"Name":"ExecutingEndpoint"},"SourceContext":"Microsoft.AspNetCore.Routing.EndpointMiddleware","RequestId":"0HNC7BHAVH9NN:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NN"}
+[2025-04-29 16:29:32.632 -04:00 INF] Route matched with {action = "GetAnalytics", controller = "Reviews"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAnalytics() on controller EmployeeReview.Api.Controllers.REST.ReviewsController (EmployeeReview). {"EventId":{"Id":102,"Name":"ControllerActionExecuting"},"SourceContext":"Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NN:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NN"}
+[2025-04-29 16:29:34.151 -04:00 INF] Getting performance analytics {"SourceContext":"EmployeeReview.Api.Controllers.REST.ReviewsController","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NN:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NN"}
+[2025-04-29 16:29:38.642 -04:00 INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "e"."Id", "e"."DateOfJoining", "e"."Department", "e"."Email", "e"."IsActive", "e"."Name"
+FROM "Employees" AS "e" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NN:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NN"}
+[2025-04-29 16:30:09.912 -04:00 INF] Executed DbCommand (0ms) [Parameters=[@__department_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT AVG("p"."Score")
+FROM "PerformanceReviews" AS "p"
+INNER JOIN "Employees" AS "e" ON "p"."EmployeeId" = "e"."Id"
+WHERE "e"."Department" = @__department_0 AND "e"."IsActive" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NN:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NN"}
+[2025-04-29 16:30:38.222 -04:00 INF] Executed DbCommand (0ms) [Parameters=[@__department_0='?' (Size = 9)], CommandType='"Text"', CommandTimeout='30']
+SELECT AVG("p"."Score")
+FROM "PerformanceReviews" AS "p"
+INNER JOIN "Employees" AS "e" ON "p"."EmployeeId" = "e"."Id"
+WHERE "e"."Department" = @__department_0 AND "e"."IsActive" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NN:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NN"}
+[2025-04-29 16:30:41.087 -04:00 INF] Executed DbCommand (0ms) [Parameters=[@__department_0='?' (Size = 2)], CommandType='"Text"', CommandTimeout='30']
+SELECT AVG("p"."Score")
+FROM "PerformanceReviews" AS "p"
+INNER JOIN "Employees" AS "e" ON "p"."EmployeeId" = "e"."Id"
+WHERE "e"."Department" = @__department_0 AND "e"."IsActive" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NN:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NN"}
+[2025-04-29 16:30:42.266 -04:00 INF] Executed DbCommand (0ms) [Parameters=[@__department_0='?' (Size = 16)], CommandType='"Text"', CommandTimeout='30']
+SELECT AVG("p"."Score")
+FROM "PerformanceReviews" AS "p"
+INNER JOIN "Employees" AS "e" ON "p"."EmployeeId" = "e"."Id"
+WHERE "e"."Department" = @__department_0 AND "e"."IsActive" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NN:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NN"}
+[2025-04-29 16:30:43.139 -04:00 INF] Executed DbCommand (0ms) [Parameters=[@__department_0='?' (Size = 2)], CommandType='"Text"', CommandTimeout='30']
+SELECT AVG("p"."Score")
+FROM "PerformanceReviews" AS "p"
+INNER JOIN "Employees" AS "e" ON "p"."EmployeeId" = "e"."Id"
+WHERE "e"."Department" = @__department_0 AND "e"."IsActive" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NN:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NN"}
+[2025-04-29 16:30:46.856 -04:00 INF] Executed DbCommand (0ms) [Parameters=[@__department_0='?' (Size = 10)], CommandType='"Text"', CommandTimeout='30']
+SELECT AVG("p"."Score")
+FROM "PerformanceReviews" AS "p"
+INNER JOIN "Employees" AS "e" ON "p"."EmployeeId" = "e"."Id"
+WHERE "e"."Department" = @__department_0 AND "e"."IsActive" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NN:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NN"}
+[2025-04-29 16:30:46.864 -04:00 INF] Executed DbCommand (0ms) [Parameters=[@__department_0='?' (Size = 3)], CommandType='"Text"', CommandTimeout='30']
+SELECT AVG("p"."Score")
+FROM "PerformanceReviews" AS "p"
+INNER JOIN "Employees" AS "e" ON "p"."EmployeeId" = "e"."Id"
+WHERE "e"."Department" = @__department_0 AND "e"."IsActive" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NN:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NN"}
+[2025-04-29 16:30:46.868 -04:00 INF] Executed DbCommand (0ms) [Parameters=[@__department_0='?' (Size = 5)], CommandType='"Text"', CommandTimeout='30']
+SELECT AVG("p"."Score")
+FROM "PerformanceReviews" AS "p"
+INNER JOIN "Employees" AS "e" ON "p"."EmployeeId" = "e"."Id"
+WHERE "e"."Department" = @__department_0 AND "e"."IsActive" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NN:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NN"}
+[2025-04-29 16:30:46.888 -04:00 INF] Executed DbCommand (0ms) [Parameters=[@__department_0='?' (Size = 7)], CommandType='"Text"', CommandTimeout='30']
+SELECT AVG("p"."Score")
+FROM "PerformanceReviews" AS "p"
+INNER JOIN "Employees" AS "e" ON "p"."EmployeeId" = "e"."Id"
+WHERE "e"."Department" = @__department_0 AND "e"."IsActive" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NN:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NN"}
+[2025-04-29 16:30:46.899 -04:00 INF] Executed DbCommand (0ms) [Parameters=[@__department_0='?' (Size = 14)], CommandType='"Text"', CommandTimeout='30']
+SELECT AVG("p"."Score")
+FROM "PerformanceReviews" AS "p"
+INNER JOIN "Employees" AS "e" ON "p"."EmployeeId" = "e"."Id"
+WHERE "e"."Department" = @__department_0 AND "e"."IsActive" {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NN:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NN"}
+[2025-04-29 16:30:48.890 -04:00 INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "p"."EmployeeId", "e"."Name", "e"."Department", AVG("p"."Score") AS "AverageScore"
+FROM "PerformanceReviews" AS "p"
+INNER JOIN "Employees" AS "e" ON "p"."EmployeeId" = "e"."Id"
+WHERE "e"."IsActive"
+GROUP BY "p"."EmployeeId", "e"."Name", "e"."Department"
+ORDER BY AVG("p"."Score") DESC
+LIMIT @__p_0 {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NN:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NN"}
+[2025-04-29 16:30:48.902 -04:00 INF] Executed DbCommand (0ms) [Parameters=[@__employeeIds_0='?' (Size = 16)], CommandType='"Text"', CommandTimeout='30']
+SELECT "e"."Id", "e"."DateOfJoining", "e"."Department", "e"."Email", "e"."IsActive", "e"."Name"
+FROM "Employees" AS "e"
+WHERE "e"."Id" IN (
+    SELECT "e0"."value"
+    FROM json_each(@__employeeIds_0) AS "e0"
+) {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command","ActionId":"1db0b2ef-7c87-40ba-be76-15cc34a3c252","ActionName":"EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)","RequestId":"0HNC7BHAVH9NN:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NN"}
+[2025-04-29 16:30:57.551 -04:00 INF] Executed action EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview) in 84914.8027ms {"EventId":{"Id":105,"Name":"ActionExecuted"},"SourceContext":"Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker","RequestId":"0HNC7BHAVH9NN:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NN"}
+[2025-04-29 16:30:57.556 -04:00 INF] Executed endpoint 'EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics (EmployeeReview)' {"EventId":{"Id":1,"Name":"ExecutedEndpoint"},"SourceContext":"Microsoft.AspNetCore.Routing.EndpointMiddleware","RequestId":"0HNC7BHAVH9NN:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NN"}
+[2025-04-29 16:30:57.570 -04:00 ERR] HTTP GET /api/v1/Reviews/analytics responded 500 in 84946.1603 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNC7BHAVH9NN:00000001","ConnectionId":"0HNC7BHAVH9NN"}
+AutoMapper.AutoMapperMappingException: Error mapping types.
+
+Mapping types:
+List`1 -> List`1
+System.Collections.Generic.List`1[[EmployeeReview.Domain.Entities.Employee, Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]] -> System.Collections.Generic.List`1[[EmployeeReview.Application.DTOs.TopPerformerDto, Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]
+ ---> AutoMapper.AutoMapperMappingException: Missing type map configuration or unsupported mapping.
+
+Mapping types:
+Employee -> TopPerformerDto
+EmployeeReview.Domain.Entities.Employee -> EmployeeReview.Application.DTOs.TopPerformerDto
+   at lambda_method133(Closure, Employee, TopPerformerDto, ResolutionContext)
+   at lambda_method132(Closure, Object, List`1, ResolutionContext)
+   --- End of inner exception stack trace ---
+   at lambda_method132(Closure, Object, List`1, ResolutionContext)
+   at EmployeeReview.Application.Services.PerformanceReviewService.GetPerformanceAnalyticsAsync() in C:\source\EmployeeReview\Application\Services\PerformanceReviewService.cs:line 131
+   at EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics() in C:\source\EmployeeReview\EmployeeReview\Controllers\ReviewsController.cs:line 107
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+[2025-04-29 16:37:38.249 -04:00 ERR] An unhandled exception occurred during request execution {"SourceContext":"EmployeeReview.Api.Middleware.ExceptionHandlingMiddleware","RequestId":"0HNC7BHAVH9NN:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NN"}
+AutoMapper.AutoMapperMappingException: Error mapping types.
+
+Mapping types:
+List`1 -> List`1
+System.Collections.Generic.List`1[[EmployeeReview.Domain.Entities.Employee, Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]] -> System.Collections.Generic.List`1[[EmployeeReview.Application.DTOs.TopPerformerDto, Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]
+ ---> AutoMapper.AutoMapperMappingException: Missing type map configuration or unsupported mapping.
+
+Mapping types:
+Employee -> TopPerformerDto
+EmployeeReview.Domain.Entities.Employee -> EmployeeReview.Application.DTOs.TopPerformerDto
+   at lambda_method133(Closure, Employee, TopPerformerDto, ResolutionContext)
+   at lambda_method132(Closure, Object, List`1, ResolutionContext)
+   --- End of inner exception stack trace ---
+   at lambda_method132(Closure, Object, List`1, ResolutionContext)
+   at EmployeeReview.Application.Services.PerformanceReviewService.GetPerformanceAnalyticsAsync() in C:\source\EmployeeReview\Application\Services\PerformanceReviewService.cs:line 131
+   at EmployeeReview.Api.Controllers.REST.ReviewsController.GetAnalytics() in C:\source\EmployeeReview\EmployeeReview\Controllers\ReviewsController.cs:line 107
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+   at EmployeeReview.Api.Middleware.ExceptionHandlingMiddleware.InvokeAsync(HttpContext httpContext) in C:\source\EmployeeReview\EmployeeReview\Middleware\Middleware.cs:line 25
+[2025-04-29 16:37:38.271 -04:00 INF] Request finished HTTP/2 GET https://localhost:7289/api/v1/Reviews/analytics - 500 null application/json 485663.0583ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7BHAVH9NN:00000001","RequestPath":"/api/v1/Reviews/analytics","ConnectionId":"0HNC7BHAVH9NN"}
