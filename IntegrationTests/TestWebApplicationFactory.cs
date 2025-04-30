@@ -4,94 +4,70 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.TestPlatform.TestHost;
 using System;
 using System.Linq;
 
-namespace EmployeeReview.IntegrationTests.Fixtures
+namespace EmployeeReview.IntegrationTests
 {
-    public class TestWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup> where TStartup : class
+    public class SimpleTestWebApplicationFactory : WebApplicationFactory<Program>
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.ConfigureServices(services =>
             {
-                // Find the DbContext registration
+                // Replace the database with in-memory
                 var descriptor = services.SingleOrDefault(
                     d => d.ServiceType == typeof(DbContextOptions<AppDbContext>));
 
                 if (descriptor != null)
                 {
-                    // Remove the registered DbContext
                     services.Remove(descriptor);
                 }
 
-                // Create a unique database name for this test run
-                string dbName = $"EmployeeReview_IntegrationTest_{Guid.NewGuid()}";
-
-                // Add DB context using an in-memory database for testing
+                // Add in-memory database
                 services.AddDbContext<AppDbContext>(options =>
                 {
-                    options.UseInMemoryDatabase(dbName);
+                    options.UseInMemoryDatabase("InMemoryDbForTesting");
                 });
 
-                // Build the service provider
+                // Create a database and seed it
                 var sp = services.BuildServiceProvider();
+                using var scope = sp.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                db.Database.EnsureCreated();
 
-                // Create a scope to obtain a reference to the database context
-                using (var scope = sp.CreateScope())
-                {
-                    var scopedServices = scope.ServiceProvider;
-                    var db = scopedServices.GetRequiredService<AppDbContext>();
-                    var logger = scopedServices.GetRequiredService<ILogger<TestWebApplicationFactory<TStartup>>>();
-
-                    // Ensure the database is created
-                    db.Database.EnsureCreated();
-
-                    try
-                    {
-                        // Seed the database with test data
-                        SeedDatabase(db);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(ex, "An error occurred seeding the database. Error: {Message}", ex.Message);
-                    }
-                }
+                SeedData(db);
             });
         }
 
-        private void SeedDatabase(AppDbContext context)
+        private void SeedData(AppDbContext db)
         {
-            // Add test employees
-            var employees = new[]
+            // Add sample employees
+            if (!db.Employees.Any())
             {
-                new Domain.Entities.Employee("John Doe", "john.doe@example.com", "IT", DateTime.Now.AddYears(-2)),
-                new Domain.Entities.Employee("Jane Smith", "jane.smith@example.com", "HR", DateTime.Now.AddYears(-3)),
-                new Domain.Entities.Employee("Robert Johnson", "robert.johnson@example.com", "Finance", DateTime.Now.AddYears(-1))
-            };
+                db.Employees.AddRange(
+                    new Domain.Entities.Employee("John Doe", "john@example.com", "Engineering", DateTime.Now.AddYears(-2)),
+                    new Domain.Entities.Employee("Jane Smith", "jane@example.com", "HR", DateTime.Now.AddYears(-3))
+                );
+                db.SaveChanges();
+            }
 
-            context.Employees.AddRange(employees);
-            context.SaveChanges();
-
-            // Create some reviews
-            var reviewers = context.Employees.ToList();
-            if (reviewers.Count < 3) return; // Safety check
-
-            var reviews = new[]
+            // Add a few reviews if needed
+            if (!db.PerformanceReviews.Any() && db.Employees.Count() >= 2)
             {
-                new Domain.Entities.PerformanceReview(
-                    reviewers[0].Id, reviewers[1].Id, DateTime.Now.AddMonths(-1), 4.5, "Excellent work on the project"),
-
-                new Domain.Entities.PerformanceReview(
-                    reviewers[0].Id, reviewers[2].Id, DateTime.Now.AddMonths(-3), 4.0, "Good teamwork"),
-
-                new Domain.Entities.PerformanceReview(
-                    reviewers[1].Id, reviewers[2].Id, DateTime.Now.AddMonths(-2), 4.7, "Outstanding leadership")
-            };
-
-            context.PerformanceReviews.AddRange(reviews);
-            context.SaveChanges();
+                var employees = db.Employees.ToList();
+                db.PerformanceReviews.Add(
+                    new Domain.Entities.PerformanceReview(
+                        employees[0].Id,
+                        employees[1].Id,
+                        DateTime.Now.AddMonths(-1),
+                        4.5,
+                        "Great work!"
+                    )
+                );
+                db.SaveChanges();
+            }
         }
     }
 }

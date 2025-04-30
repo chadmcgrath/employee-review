@@ -21,6 +21,7 @@ namespace EmployeeReview.Infrastructure.Security
         public const string AdminOnly = "AdminOnly";
         public const string AdminOrEmployee = "AdminOrEmployee";
         public const string AdminOrReviewerOrEmployee = "AdminOrReviewerOrEmployee";
+        public const string AdminOrReviewer = "AdminOrReviewer";
     }
 
 
@@ -262,6 +263,7 @@ namespace EmployeeReview.Infrastructure.Security
                 {
                     policy.AddRequirements(new ReviewAccessRequirement());
                 });
+
             });
 
             // Register authorization handlers

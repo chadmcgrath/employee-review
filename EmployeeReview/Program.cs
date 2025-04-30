@@ -368,3 +368,4 @@ public class SecurityRequirementsOperationFilter : Swashbuckle.AspNetCore.Swagge
         });
     }
 }
+public partial class Program { }

@@ -16,7 +16,11 @@ namespace EmployeeReview.IntegrationTests.Fixtures
 
             // Create a unique database name for this test run to avoid conflicts
             string dbName = $"EmployeeReview_Test_{Guid.NewGuid()}";
-
+            var descriptors = serviceCollection.Where(d => d.ServiceType == typeof(DbContextOptions<AppDbContext>)).ToList();
+            foreach (var descriptor in descriptors)
+            {
+                serviceCollection.Remove(descriptor);
+            }
             // Configure the in-memory database
             ContextOptions = new DbContextOptionsBuilder<AppDbContext>()
                 .UseInMemoryDatabase(dbName)

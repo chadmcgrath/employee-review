@@ -75,7 +75,6 @@ namespace EmployeeReview.Api.Controllers.REST
             if (review == null)
                 return NotFound();
 
-            // Authorization will be handled by the policy handler
             return Ok(review);
         }
 

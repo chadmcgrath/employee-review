@@ -1,28 +1,25 @@
-﻿using EmployeeReview.Api;
-using EmployeeReview.Contracts.DTOs;
+﻿using EmployeeReview.Contracts.DTOs;
 using EmployeeReview.IntegrationTests.Fixtures;
 using EmployeeReview.IntegrationTests.Helpers;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
+
 
 namespace EmployeeReview.IntegrationTests.Controllers
 {
     [TestFixture]
     public class EmployeesControllerIntegrationTests
     {
-        private WebApplicationFactory<Program> _factory;
+        private SimpleTestWebApplicationFactory _factory;
         private HttpClient _client;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            _factory = new TestWebApplicationFactory<Program>();
+            _factory = new SimpleTestWebApplicationFactory();
             _client = _factory.CreateClient();
         }
 

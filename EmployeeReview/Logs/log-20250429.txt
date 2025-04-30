@@ -3306,3 +3306,44 @@ ORDER BY "p"."ReviewDate" DESC {"EventId":{"Id":20101,"Name":"Microsoft.EntityFr
 [2025-04-29 21:00:53.226 -04:00 INF] Executed endpoint 'EmployeeReview.Api.Controllers.REST.ReviewsController.GetEmployeeReviews (EmployeeReview)' {"EventId":{"Id":1,"Name":"ExecutedEndpoint"},"SourceContext":"Microsoft.AspNetCore.Routing.EndpointMiddleware","RequestId":"0HNC7G9E8MJ61:00000001","RequestPath":"/api/v1/employees/1/reviews","ConnectionId":"0HNC7G9E8MJ61"}
 [2025-04-29 21:00:53.229 -04:00 INF] HTTP GET /api/v1/employees/1/reviews responded 200 in 5299.3217 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNC7G9E8MJ61:00000001","ConnectionId":"0HNC7G9E8MJ61"}
 [2025-04-29 21:00:53.231 -04:00 INF] Request finished HTTP/2 GET https://localhost:7289/api/v1/employees/1/reviews - 200 null application/json; charset=utf-8 5319.7289ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7G9E8MJ61:00000001","RequestPath":"/api/v1/employees/1/reviews","ConnectionId":"0HNC7G9E8MJ61"}
+[2025-04-29 22:24:55.909 -04:00 INF] Executed DbCommand (30ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 22:24:55.958 -04:00 INF] No migrations were found in assembly 'Infrastructure'. A migration needs to be added before the database can be updated. {"EventId":{"Id":20406,"Name":"Microsoft.EntityFrameworkCore.Migrations.MigrationsNotFound"},"SourceContext":"Microsoft.EntityFrameworkCore.Migrations"}
+[2025-04-29 22:24:55.966 -04:00 INF] Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long. {"EventId":{"Id":20411,"Name":"Microsoft.EntityFrameworkCore.Migrations.AcquiringMigrationLock"},"SourceContext":"Microsoft.EntityFrameworkCore.Migrations"}
+[2025-04-29 22:24:55.975 -04:00 INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsLock' AND "type" = 'table'; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 22:24:55.985 -04:00 INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+INSERT OR IGNORE INTO "__EFMigrationsLock"("Id", "Timestamp") VALUES(1, '2025-04-30 02:24:55.9822964+00:00');
+SELECT changes(); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 22:24:56.077 -04:00 INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
+    "ProductVersion" TEXT NOT NULL
+); {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 22:24:56.090 -04:00 INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsHistory' AND "type" = 'table'; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 22:24:56.095 -04:00 INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId"; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 22:24:56.105 -04:00 INF] No migrations were applied. The database is already up to date. {"EventId":{"Id":20405,"Name":"Microsoft.EntityFrameworkCore.Migrations.MigrationsNotApplied"},"SourceContext":"Microsoft.EntityFrameworkCore.Migrations"}
+[2025-04-29 22:24:56.107 -04:00 INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+DELETE FROM "__EFMigrationsLock"; {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 22:24:56.258 -04:00 INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Employees" AS "e") {"EventId":{"Id":20101,"Name":"Microsoft.EntityFrameworkCore.Database.Command.CommandExecuted"},"SourceContext":"Microsoft.EntityFrameworkCore.Database.Command"}
+[2025-04-29 22:24:56.296 -04:00 INF] User profile is available. Using 'C:\Users\chadm\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest. {"EventId":{"Id":63,"Name":"UsingProfileAsKeyRepositoryWithDPAPI"},"SourceContext":"Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager"}
+[2025-04-29 22:24:56.513 -04:00 INF] Now listening on: https://localhost:7289 {"EventId":{"Id":14,"Name":"ListeningOnAddress"},"SourceContext":"Microsoft.Hosting.Lifetime"}
+[2025-04-29 22:24:56.516 -04:00 INF] Now listening on: http://localhost:5004 {"EventId":{"Id":14,"Name":"ListeningOnAddress"},"SourceContext":"Microsoft.Hosting.Lifetime"}
+[2025-04-29 22:24:56.601 -04:00 INF] Application started. Press Ctrl+C to shut down. {"SourceContext":"Microsoft.Hosting.Lifetime"}
+[2025-04-29 22:24:56.603 -04:00 INF] Hosting environment: Development {"SourceContext":"Microsoft.Hosting.Lifetime"}
+[2025-04-29 22:24:56.603 -04:00 INF] Content root path: C:\source\EmployeeReview\EmployeeReview {"SourceContext":"Microsoft.Hosting.Lifetime"}
+[2025-04-29 22:24:57.454 -04:00 INF] Request starting HTTP/2 GET https://localhost:7289/swagger/index.html - null null {"EventId":{"Id":1},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7HOPHRB5L:00000001","RequestPath":"/swagger/index.html","ConnectionId":"0HNC7HOPHRB5L"}
+[2025-04-29 22:24:57.623 -04:00 INF] Request finished HTTP/2 GET https://localhost:7289/swagger/index.html - 200 null text/html;charset=utf-8 174.239ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7HOPHRB5L:00000001","RequestPath":"/swagger/index.html","ConnectionId":"0HNC7HOPHRB5L"}
+[2025-04-29 22:24:57.636 -04:00 INF] Request starting HTTP/2 GET https://localhost:7289/_framework/aspnetcore-browser-refresh.js - null null {"EventId":{"Id":1},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7HOPHRB5L:00000003","RequestPath":"/_framework/aspnetcore-browser-refresh.js","ConnectionId":"0HNC7HOPHRB5L"}
+[2025-04-29 22:24:57.636 -04:00 INF] Request starting HTTP/2 GET https://localhost:7289/_vs/browserLink - null null {"EventId":{"Id":1},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7HOPHRB5L:00000005","RequestPath":"/_vs/browserLink","ConnectionId":"0HNC7HOPHRB5L"}
+[2025-04-29 22:24:57.649 -04:00 INF] Request finished HTTP/2 GET https://localhost:7289/_framework/aspnetcore-browser-refresh.js - 200 13780 application/javascript; charset=utf-8 13.6199ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7HOPHRB5L:00000003","RequestPath":"/_framework/aspnetcore-browser-refresh.js","ConnectionId":"0HNC7HOPHRB5L"}
+[2025-04-29 22:24:57.691 -04:00 INF] Request finished HTTP/2 GET https://localhost:7289/_vs/browserLink - 200 null text/javascript; charset=UTF-8 55.7064ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7HOPHRB5L:00000005","RequestPath":"/_vs/browserLink","ConnectionId":"0HNC7HOPHRB5L"}
+[2025-04-29 22:24:57.851 -04:00 INF] Request starting HTTP/2 GET https://localhost:7289/swagger/v1/swagger.json - null null {"EventId":{"Id":1},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7HOPHRB5L:00000007","RequestPath":"/swagger/v1/swagger.json","ConnectionId":"0HNC7HOPHRB5L"}
+[2025-04-29 22:24:57.874 -04:00 INF] Request finished HTTP/2 GET https://localhost:7289/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 22.2773ms {"EventId":{"Id":2},"SourceContext":"Microsoft.AspNetCore.Hosting.Diagnostics","RequestId":"0HNC7HOPHRB5L:00000007","RequestPath":"/swagger/v1/swagger.json","ConnectionId":"0HNC7HOPHRB5L"}
