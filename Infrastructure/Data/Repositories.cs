@@ -155,7 +155,12 @@ namespace EmployeeReview.Infrastructure.Data.Repositories
             : base(dbContext, mapper)
         {
         }
-
+        // it's ok that this runs synchronously, because nothing should call it
+        public override async Task DeleteAsync(int id)
+        {
+            // make it obvious that we don't want this, as opposed to omitting it.           
+            throw new InvalidOperationException("Hard Deletes are on the Employee entity are not allowed. Use Employee.SoftDetete and UpdateAsync instead.");
+        }
         public async Task<EmployeeDto> GetEmployeeDtoByIdAsync(int id)
         {
             return await _dbContext.Employees

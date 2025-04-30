@@ -100,12 +100,12 @@ namespace EmployeeReview.Tests.Application.Services
             int pageNumber = 1;
             int pageSize = 10;
             string searchTerm = "John";
-
+            
             var employeeDtos = new List<EmployeeDto>
             {
                 TestEntityFactory.CreateEmployeeDto(1, "John Doe", "john.doe@example.com", "IT")
             };
-
+            
             int totalCount = 1;
 
             _mockEmployeeRepository
@@ -137,13 +137,13 @@ namespace EmployeeReview.Tests.Application.Services
             int pageNumber = 1;
             int pageSize = 10;
             string department = "Engineering";
-
+            
             var employeeDtos = new List<EmployeeDto>
             {
                 TestEntityFactory.CreateEmployeeDto(1, "John Doe", "john.doe@example.com", "Engineering"),
                 TestEntityFactory.CreateEmployeeDto(3, "Bob Johnson", "bob.johnson@example.com", "Engineering")
             };
-
+            
             int totalCount = 2;
 
             _mockEmployeeRepository
@@ -280,13 +280,30 @@ namespace EmployeeReview.Tests.Application.Services
             _mockEmployeeRepository.Verify(repo => repo.UpdateAsync(It.IsAny<Employee>()), Times.Never);
             _mockUnitOfWork.Verify(uow => uow.CompleteAsync(), Times.Never);
         }
+        [Test]
+        public async Task DeleteEmployeeAsync_EplyeeStillExists()
+        {
+            // Arrange
+            int employeeId = 1;
 
+            // Use the factory to create an employee
+            var employee = TestEntityFactory.CreateEmployee(
+                employeeId, "John Doe", "john.doe@example.com", "IT");
+
+            // Act
+            await _employeeService.DeleteEmployeeAsync(employeeId);
+
+            var result = await _employeeService.GetEmployeeByIdAsync(employeeId);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(false, result.IsActive);
+        }
         [Test]
         public async Task DeleteEmployeeAsync_ReturnsTrue_WhenEmployeeExists()
         {
             // Arrange
             int employeeId = 1;
-
+            
             // Use the factory to create an employee
             var employee = TestEntityFactory.CreateEmployee(
                 employeeId, "John Doe", "john.doe@example.com", "IT");
@@ -330,7 +347,7 @@ namespace EmployeeReview.Tests.Application.Services
         {
             // Arrange
             int employeeId = 1;
-
+            
             _mockEmployeeRepository
                 .Setup(repo => repo.CountAsync(It.IsAny<Expression<Func<Employee, bool>>>()))
                 .ReturnsAsync(1);
@@ -348,7 +365,7 @@ namespace EmployeeReview.Tests.Application.Services
         {
             // Arrange
             int employeeId = 999;
-
+            
             _mockEmployeeRepository
                 .Setup(repo => repo.CountAsync(It.IsAny<Expression<Func<Employee, bool>>>()))
                 .ReturnsAsync(0);
