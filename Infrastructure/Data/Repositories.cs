@@ -3,11 +3,8 @@ using AutoMapper.QueryableExtensions;
 using EmployeeReview.Contracts.DTOs;
 using EmployeeReview.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
+
 
 namespace EmployeeReview.Infrastructure.Data.Repositories
 {
@@ -247,6 +244,7 @@ namespace EmployeeReview.Infrastructure.Data.Repositories
                 .ToListAsync();
         }
 
+        // Keep original implementation for GroupBy methods
         public async Task<List<DepartmentPerformanceDto>> GetAverageScoresByDepartmentAsync(List<string> departments)
         {
             if (departments == null || !departments.Any())
@@ -296,7 +294,6 @@ namespace EmployeeReview.Infrastructure.Data.Repositories
                 {
                     Month = $"{g.Key.Year}-{g.Key.Month:D2}",
                     AverageScore = g.Average(r => r.Score),
-                    // Adding these for sorting purposes
                     Year = g.Key.Year,
                     MonthNumber = g.Key.Month
                 })

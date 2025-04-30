@@ -15,7 +15,7 @@ namespace EmployeeReview.Contracts.DTOs
 
     public class CreateEmployeeDto
     {
-        //public string Name { get; set; }
+        public string Name { get; set; }
         public string Email { get; set; }
         public string Department { get; set; }
         public DateTime DateOfJoining { get; set; }
@@ -35,6 +35,7 @@ namespace EmployeeReview.Contracts.DTOs
     {
         public int Id { get; set; }
         public int EmployeeId { get; set; }
+        public string EmployeeName { get; set; }
         public int ReviewerId { get; set; }
         public string ReviewerName { get; set; }
         public DateTime ReviewDate { get; set; }

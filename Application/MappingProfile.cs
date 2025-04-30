@@ -2,7 +2,6 @@
 using AutoMapper;
 using EmployeeReview.Contracts.DTOs;
 using EmployeeReview.Domain.Entities;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace EmployeeReview.Application.Mappings
 {

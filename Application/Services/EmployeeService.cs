@@ -105,6 +105,7 @@ namespace EmployeeReview.Application.Services
 
         public async Task<bool> EmployeeExistsAsync(int id)
         {
+            // We could put an Any() in the repo
             return await _unitOfWork.EmployeeRepository.CountAsync(e => e.Id == id && e.IsActive) > 0;
         }
     }
