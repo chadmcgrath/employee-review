@@ -242,7 +242,6 @@ static void ConfigureSwagger(IServiceCollection services, IConfiguration configu
     });
 }
 
-// Add this to your ConfigureDevelopmentEnvironment method in Program.cs
 static void ConfigureDevelopmentEnvironment(WebApplication app)
 {
     app.UseDeveloperExceptionPage();
@@ -251,17 +250,26 @@ static void ConfigureDevelopmentEnvironment(WebApplication app)
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Employee Review API v1");
 
         // Inject our custom JavaScript for role switching
-        c.InjectJavascript("/swagger-ui/simple-role-switcher.js");
+        c.InjectJavascript("/swagger-ui/fixed-role-switcher.js");
     });
 
     // Serve our custom JavaScript file
-    app.MapGet("/swagger-ui/simple-role-switcher.js", async context =>
+    app.MapGet("/swagger-ui/fixed-role-switcher.js", async context =>
     {
         context.Response.ContentType = "application/javascript";
 
         string js = @"
-// Simple Role Switcher with Debug Info
+// Fixed Role Switcher with Proper Highlighting
 (function() {
+    // Debug flag - set to true to see debug logs
+    const DEBUG = true;
+    
+    function debugLog(...args) {
+        if (DEBUG) {
+            console.log('[Role Switcher]', ...args);
+        }
+    }
+
     // Wait for Swagger UI to finish loading
     const interval = setInterval(function() {
         if (document.querySelector('.swagger-ui')) {
@@ -271,6 +279,8 @@ static void ConfigureDevelopmentEnvironment(WebApplication app)
     }, 100);
 
     function initRoleSwitcher() {
+        debugLog('Initializing role switcher');
+        
         // Create role switcher container
         const container = document.createElement('div');
         container.style.padding = '15px';
@@ -288,12 +298,8 @@ static void ConfigureDevelopmentEnvironment(WebApplication app)
         // Create button container
         const buttonContainer = document.createElement('div');
         buttonContainer.style.marginBottom = '10px';
+        buttonContainer.id = 'role-switcher-buttons';
         container.appendChild(buttonContainer);
-
-        // Add role buttons
-        addRoleButton(buttonContainer, 'Admin', null, null);
-        addRoleButton(buttonContainer, 'Employee', 1, null);
-        addRoleButton(buttonContainer, 'Reviewer', null, 2);
 
         // Add debug info container
         const debugContainer = document.createElement('div');
@@ -322,16 +328,56 @@ static void ConfigureDevelopmentEnvironment(WebApplication app)
         const swaggerUi = document.querySelector('.swagger-ui');
         if (swaggerUi && swaggerUi.parentNode) {
             swaggerUi.parentNode.insertBefore(container, swaggerUi);
+            
+            // Now create the buttons
+            createRoleButtons();
+            
+            // Default to Admin if no role is selected
+            const currentRole = localStorage.getItem('currentRole');
+            if (!currentRole) {
+                debugLog('No role found in localStorage, defaulting to Admin');
+                switchToRole('Admin', null, null);
+            } else {
+                debugLog('Found role in localStorage:', currentRole);
+                // Update debug info with current token
+                updateDebugInfo();
+                
+                // Update button styles based on stored values
+                updateButtonStyles();
+            }
         }
-
-        // Update debug info initially
-        updateDebugInfo();
+    }
+    
+    function createRoleButtons() {
+        const buttonContainer = document.getElementById('role-switcher-buttons');
+        if (!buttonContainer) {
+            debugLog('Button container not found');
+            return;
+        }
+        
+        // Clear existing buttons
+        buttonContainer.innerHTML = '';
+        
+        // Add role buttons
+        addRoleButton(buttonContainer, 'Admin', null, null);
+        addRoleButton(buttonContainer, 'Employee', 1, null);
+        addRoleButton(buttonContainer, 'Reviewer', null, 2);
+        
+        debugLog('Role buttons created');
     }
 
     function addRoleButton(container, role, employeeId, reviewerId) {
         const button = document.createElement('button');
-        button.innerText = role + (employeeId ? ' (ID: ' + employeeId + ')' : '') + 
-                          (reviewerId ? ' (Reviewer ID: ' + reviewerId + ')' : '');
+        
+        // Convert all values to strings for consistency
+        const roleStr = String(role);
+        const empIdStr = employeeId ? String(employeeId) : '';
+        const revIdStr = reviewerId ? String(reviewerId) : '';
+        
+        button.innerText = roleStr + 
+                         (employeeId ? ' (ID: ' + employeeId + ')' : '') + 
+                         (reviewerId ? ' (Reviewer ID: ' + reviewerId + ')' : '');
+        
         button.style.margin = '0 5px 5px 0';
         button.style.padding = '8px 15px';
         button.style.borderRadius = '4px';
@@ -340,29 +386,35 @@ static void ConfigureDevelopmentEnvironment(WebApplication app)
         button.style.cursor = 'pointer';
         button.style.fontWeight = 'bold';
         
-        // Check if this is the current role
-        const currentToken = localStorage.getItem('authToken');
-        const currentRole = localStorage.getItem('currentRole');
-        const currentEmpId = localStorage.getItem('currentEmployeeId');
-        const currentRevId = localStorage.getItem('currentReviewerId');
-        
-        if (currentRole === role && 
-            ((!employeeId && !currentEmpId) || (employeeId && currentEmpId == employeeId)) &&
-            ((!reviewerId && !currentRevId) || (reviewerId && currentRevId == reviewerId))) {
-            button.style.backgroundColor = '#4CAF50';
-            button.style.color = 'white';
-            button.style.borderColor = '#4CAF50';
-        }
+        // Store role info as data attributes (convert to strings)
+        button.setAttribute('data-role', roleStr);
+        button.setAttribute('data-employee-id', empIdStr);
+        button.setAttribute('data-reviewer-id', revIdStr);
         
         button.onclick = function() {
-            switchToRole(role, employeeId, reviewerId);
+            debugLog('Button clicked:', roleStr, empIdStr, revIdStr);
+            switchToRole(roleStr, employeeId, reviewerId);
         };
         
         container.appendChild(button);
         return button;
     }
 
+    function setActiveButtonStyle(button) {
+        button.style.backgroundColor = '#4CAF50';
+        button.style.color = 'white';
+        button.style.borderColor = '#4CAF50';
+    }
+
+    function resetButtonStyle(button) {
+        button.style.backgroundColor = '#fff';
+        button.style.color = '#000';
+        button.style.borderColor = '#ccc';
+    }
+
     function switchToRole(role, employeeId, reviewerId) {
+        debugLog('Switching to role:', role, employeeId, reviewerId);
+        
         // Build the URL with all parameters
         let url = '/api/v1/TestAuth/token?role=' + encodeURIComponent(role);
         if (employeeId) {
@@ -381,22 +433,28 @@ static void ConfigureDevelopmentEnvironment(WebApplication app)
                 return response.json();
             })
             .then(data => {
-                // Store token and role info
+                // Store token and role info (convert to strings for consistency)
                 localStorage.setItem('authToken', data.token);
-                localStorage.setItem('currentRole', role);
-                localStorage.setItem('currentEmployeeId', employeeId || '');
-                localStorage.setItem('currentReviewerId', reviewerId || '');
+                localStorage.setItem('currentRole', String(role));
+                localStorage.setItem('currentEmployeeId', employeeId ? String(employeeId) : '');
+                localStorage.setItem('currentReviewerId', reviewerId ? String(reviewerId) : '');
+                
+                debugLog('Stored in localStorage:', {
+                    role: String(role),
+                    employeeId: employeeId ? String(employeeId) : '',
+                    reviewerId: reviewerId ? String(reviewerId) : ''
+                });
                 
                 // Hook fetch to add auth header
                 hookFetch(data.token);
                 
-                // Show success message and update debug info
+                // Show success message
                 showMessage('Now using role: ' + role + 
                            (employeeId ? ' with Employee ID: ' + employeeId : '') +
                            (reviewerId ? ' with Reviewer ID: ' + reviewerId : ''));
                 
                 // Update the visual state of buttons
-                updateButtonStyles(role, employeeId, reviewerId);
+                updateButtonStyles();
                 
                 // Update debug info
                 updateDebugInfo();
@@ -421,31 +479,39 @@ static void ConfigureDevelopmentEnvironment(WebApplication app)
                 return originalFetch.call(this, resource, options);
             };
             window.fetchHooked = true;
+            debugLog('Fetch hooked to add auth token');
         }
     }
 
-    function updateButtonStyles(currentRole, currentEmpId, currentRevId) {
-        const buttons = document.querySelectorAll('.swagger-ui button');
-        // Reset all buttons first
-        buttons.forEach(button => {
-            if (button.innerText.includes('Admin') || 
-                button.innerText.includes('Employee') || 
-                button.innerText.includes('Reviewer')) {
-                button.style.backgroundColor = '#fff';
-                button.style.color = '#000';
-                button.style.borderColor = '#ccc';
-            }
-        });
+    function updateButtonStyles() {
+        // Get current values from localStorage
+        const currentRole = localStorage.getItem('currentRole') || '';
+        const currentEmpId = localStorage.getItem('currentEmployeeId') || '';
+        const currentRevId = localStorage.getItem('currentReviewerId') || '';
         
-        // Highlight the current role button
+        debugLog('Updating button styles with:', currentRole, currentEmpId, currentRevId);
+        
+        // Reset all buttons first
+        const buttons = document.querySelectorAll('[data-role]');
+        debugLog('Found', buttons.length, 'role buttons');
+        
         buttons.forEach(button => {
-            const text = button.innerText;
-            if ((text.includes(currentRole)) &&
-                (!currentEmpId || text.includes('ID: ' + currentEmpId)) &&
-                (!currentRevId || text.includes('Reviewer ID: ' + currentRevId))) {
-                button.style.backgroundColor = '#4CAF50';
-                button.style.color = 'white';
-                button.style.borderColor = '#4CAF50';
+            resetButtonStyle(button);
+            
+            // Get data attributes (these are already strings from setAttribute)
+            const buttonRole = button.getAttribute('data-role');
+            const buttonEmpId = button.getAttribute('data-employee-id');
+            const buttonRevId = button.getAttribute('data-reviewer-id');
+            
+            debugLog('Button attributes:', buttonRole, buttonEmpId, buttonRevId);
+            debugLog('Comparing with:', currentRole, currentEmpId, currentRevId);
+            
+            // Check if this button matches the current role
+            if (buttonRole === currentRole && 
+                buttonEmpId === currentEmpId && 
+                buttonRevId === currentRevId) {
+                debugLog('Setting active style for button:', buttonRole);
+                setActiveButtonStyle(button);
             }
         });
     }
@@ -478,9 +544,9 @@ static void ConfigureDevelopmentEnvironment(WebApplication app)
             
             // Look for employee ID claim
             const empIdClaim = Object.keys(payload).find(key => 
-                key === 'EmployeeId' || 
                 key === 'employeeId' || 
-                key === 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/employeeId');
+                key === 'EmployeeId' || 
+                key.toLowerCase().includes('employeeid'));
             
             if (empIdClaim) {
                 info += 'Employee ID Claim (' + empIdClaim + '): ' + payload[empIdClaim] + '\\n';
@@ -490,9 +556,9 @@ static void ConfigureDevelopmentEnvironment(WebApplication app)
             
             // Look for reviewer ID claim
             const revIdClaim = Object.keys(payload).find(key => 
-                key === 'ReviewerId' || 
                 key === 'reviewerId' || 
-                key === 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/reviewerId');
+                key === 'ReviewerId' || 
+                key.toLowerCase().includes('reviewerid'));
             
             if (revIdClaim) {
                 info += 'Reviewer ID Claim (' + revIdClaim + '): ' + payload[revIdClaim] + '\\n';
@@ -553,7 +619,6 @@ static void ConfigureDevelopmentEnvironment(WebApplication app)
     // Setup documents directory
     SetupDocumentsDirectory(app);
 }
-
 static void SetupDocumentsDirectory(WebApplication app)
 {
     // Ensure the Documents directory exists for DesignDecisions.docx

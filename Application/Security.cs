@@ -350,26 +350,45 @@ namespace EmployeeReview.Infrastructure.Security
     {
         public static void ConfigureAuthorizationPolicies(IServiceCollection services)
         {
+            // Configure policy authenticatuion schemes to ensure proper enforcement
             services.AddAuthorization(options =>
             {
-                // Policy for admin-only endpoints
+                // Policy for admin-only endpoints - STRICT ENFORCEMENT
                 options.AddPolicy(PolicyNames.AdminOnly, policy =>
                 {
-                    policy.RequireRole(UserRoles.Admin);
+                    policy
+                        .RequireAuthenticatedUser()
+                        .RequireRole(UserRoles.Admin);
                 });
 
                 // Policy for endpoints that allow admin or the employee
                 options.AddPolicy(PolicyNames.AdminOrEmployee, policy =>
                 {
-                    policy.AddRequirements(new EmployeeAccessRequirement());
+                    policy
+                        .RequireAuthenticatedUser()
+                        .AddRequirements(new EmployeeAccessRequirement());
                 });
 
                 // Policy for review endpoints (admin, reviewer, or the employee)
                 options.AddPolicy(PolicyNames.AdminOrReviewerOrEmployee, policy =>
                 {
-                    policy.AddRequirements(new ReviewAccessRequirement());
+                    policy
+                        .RequireAuthenticatedUser()
+                        .AddRequirements(new ReviewAccessRequirement());
                 });
 
+                // Policy for endpoints that allow admin or reviewer
+                options.AddPolicy(PolicyNames.AdminOrReviewer, policy =>
+                {
+                    policy
+                        .RequireAuthenticatedUser()
+                        .RequireAssertion(context =>
+                            context.User.IsInRole(UserRoles.Admin) ||
+                            context.User.IsInRole(UserRoles.Reviewer));
+                });
+
+                // Require all authorization handlers to run
+                options.InvokeHandlersAfterFailure = false;
             });
 
             // Register authorization handlers
