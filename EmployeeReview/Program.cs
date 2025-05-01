@@ -149,8 +149,7 @@ static void ConfigureEnvironmentSpecificServices(IServiceCollection services, IC
             new SecretManagementService(provider.GetRequiredService<IWebHostEnvironment>().EnvironmentName, "Employee"));
     }
 }
-
- static void ConfigureSwagger(IServiceCollection services, IConfiguration configuration,
+static void ConfigureSwagger(IServiceCollection services, IConfiguration configuration,
     ISecretManagementService secretService, bool isDevelopment)
 {
     services.AddSwaggerGen(c =>
@@ -224,30 +223,10 @@ static void ConfigureEnvironmentSpecificServices(IServiceCollection services, IC
         // Development-specific Swagger configuration
         if (isDevelopment)
         {
-            // Create a JWT handler to generate a development token
-            var jwtHandler = new JwtHandler(
-                secretService,
-                configuration["Jwt:Issuer"],
-                configuration["Jwt:Audience"],
-                60 // expiry in minutes
-            );
+            // REMOVED: Code that generated and hardcoded the admin token
+            // Instead, we let the JavaScript role switcher handle authorization
 
-            // Generate a test token
-            var token = jwtHandler.GenerateTokenAsync("test-admin", UserRoles.Admin).GetAwaiter().GetResult();
-
-            // Add global security requirement with the token
-            c.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
-                    },
-                    new[] { "Bearer " + token }
-                }
-            });
-
-            Console.WriteLine($"Dev mode: Auto-generated JWT token for Swagger: {token.Substring(0, 20)}...");
+            Console.WriteLine($"Dev mode: Using dynamic role switcher for authentication");
         }
 
         // Add operation filter to apply security to endpoints with [Authorize] attribute
@@ -267,29 +246,219 @@ static void ConfigureDevelopmentEnvironment(WebApplication app)
 {
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Employee Review API v1"));
+    app.UseSwaggerUI(c => {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Employee Review API v1");
 
-    // Get the JWT handler and generate a token
-    using (var scope = app.Services.CreateScope())
+        // Important: Inject our custom JavaScript for role switching
+        c.InjectJavascript("/swagger-ui/role-switcher.js");
+    });
+
+    // Serve our custom JavaScript file
+    app.MapGet("/swagger-ui/role-switcher.js", async context =>
     {
-        var jwtHandler = scope.ServiceProvider.GetRequiredService<JwtHandler>();
-        var token = jwtHandler.GenerateTokenAsync("test-admin", UserRoles.Admin).GetAwaiter().GetResult();
+        context.Response.ContentType = "application/javascript";
 
-        // Add development authentication middleware
-        app.Use(async (context, next) =>
-        {
-            // Only add auth header if not already present
-            if (!context.Request.Headers.ContainsKey("Authorization"))
-            {
-                context.Request.Headers.Add("Authorization", $"Bearer {token}");
+        // This is the JavaScript content - replace with your actual file path if you want to serve from disk
+        string js = @"
+// role-switcher.js
+(function() {
+    // Wait for Swagger UI to finish loading
+    const interval = setInterval(function() {
+        if (document.querySelector('.swagger-ui')) {
+            clearInterval(interval);
+            initRoleSwitcher();
+        }
+    }, 100);
+
+    function initRoleSwitcher() {
+        // Create role switcher container
+        const container = document.createElement('div');
+        container.className = 'role-switcher';
+        container.style.padding = '10px';
+        container.style.backgroundColor = '#f8f8f8';
+        container.style.borderRadius = '4px';
+        container.style.margin = '10px 0';
+        container.style.textAlign = 'center';
+        container.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+
+        // Add title
+        const title = document.createElement('div');
+        title.innerText = 'Test with different roles:';
+        title.style.fontWeight = 'bold';
+        title.style.marginBottom = '8px';
+        container.appendChild(title);
+
+        // Add role buttons
+        const roles = ['Admin', 'Employee', 'Reviewer'];
+        roles.forEach(role => {
+            const button = document.createElement('button');
+            button.innerText = role;
+            button.style.margin = '0 5px';
+            button.style.padding = '6px 12px';
+            button.style.border = '1px solid #ccc';
+            button.style.borderRadius = '4px';
+            button.style.cursor = 'pointer';
+            button.style.backgroundColor = '#fff';
+            button.style.fontWeight = 'normal';
+            button.dataset.role = role;
+            
+            // Add current role indicator
+            const currentRole = localStorage.getItem('currentRole');
+            if (currentRole === role) {
+                button.style.backgroundColor = '#4CAF50';
+                button.style.color = 'white';
+                button.style.borderColor = '#4CAF50';
             }
-
-            await next();
+            
+            button.addEventListener('click', function() {
+                switchRole(role);
+            });
+            
+            container.appendChild(button);
         });
 
-        Console.WriteLine($"Dev middleware: Added JWT authorization to all requests");
+        // Add a status line to show current token
+        const statusLine = document.createElement('div');
+        statusLine.className = 'status-line';
+        statusLine.style.fontSize = '12px';
+        statusLine.style.marginTop = '8px';
+        statusLine.style.color = '#666';
+        container.appendChild(statusLine);
+        
+        updateStatusLine(statusLine);
+
+        // Insert before the Swagger UI container
+        const swaggerUi = document.querySelector('.swagger-ui');
+        if (swaggerUi && swaggerUi.parentNode) {
+            swaggerUi.parentNode.insertBefore(container, swaggerUi);
+        }
+        
+        // If we have a token, add it to authorization
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            addAuthToRequests(token);
+        }
     }
 
+    function switchRole(role) {
+        // Fetch token from the TestAuth API
+        fetch(`/api/v1/TestAuth/token?role=${role}`)
+            .then(response => response.json())
+            .then(data => {
+                // Save token and role to localStorage
+                localStorage.setItem('authToken', data.token);
+                localStorage.setItem('currentRole', role);
+                
+                // Update UI to reflect the change
+                updateRoleButtons(role);
+                
+                // Update token in requests
+                addAuthToRequests(data.token);
+                
+                // Show success message
+                showMessage(`Now testing as: ${role}`);
+                
+                // Update status line
+                updateStatusLine(document.querySelector('.status-line'));
+                
+                // Reload the page to refresh the Swagger UI
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Error switching role:', error);
+                showMessage('Error switching role. Check console for details.', true);
+            });
+    }
+
+    function updateRoleButtons(currentRole) {
+        // Update all role buttons to reflect current selection
+        const buttons = document.querySelectorAll('.role-switcher button');
+        buttons.forEach(button => {
+            if (button.dataset.role === currentRole) {
+                button.style.backgroundColor = '#4CAF50';
+                button.style.color = 'white';
+                button.style.borderColor = '#4CAF50';
+            } else {
+                button.style.backgroundColor = '#fff';
+                button.style.color = '#000';
+                button.style.borderColor = '#ccc';
+            }
+        });
+    }
+
+    function updateStatusLine(statusLine) {
+        if (!statusLine) return;
+        
+        const role = localStorage.getItem('currentRole');
+        const token = localStorage.getItem('authToken');
+        
+        if (role && token) {
+            statusLine.innerText = `Active role: ${role} (token automatically applied to all requests)`;
+        } else {
+            statusLine.innerText = 'No role selected';
+        }
+    }
+
+    function addAuthToRequests(token) {
+        // Hook into Swagger UI's fetch to add the token
+        const originalFetch = window.fetch;
+        window.fetch = function(resource, options) {
+            // Clone options to avoid modifying the original
+            options = options || {};
+            options = { ...options };
+            
+            // Add headers if not present
+            if (!options.headers) {
+                options.headers = {};
+            }
+            
+            // Add authorization header with token
+            if (token && resource.toString().includes('/api/')) {
+                options.headers['Authorization'] = `Bearer ${token}`;
+            }
+            
+            return originalFetch.call(this, resource, options);
+        };
+    }
+
+    function showMessage(message, isError) {
+        // Create or get message container
+        let msgContainer = document.querySelector('.role-switcher-message');
+        if (!msgContainer) {
+            msgContainer = document.createElement('div');
+            msgContainer.className = 'role-switcher-message';
+            msgContainer.style.padding = '10px';
+            msgContainer.style.margin = '10px 0';
+            msgContainer.style.borderRadius = '4px';
+            msgContainer.style.textAlign = 'center';
+            
+            // Insert after role switcher
+            const roleSwitcher = document.querySelector('.role-switcher');
+            if (roleSwitcher && roleSwitcher.parentNode) {
+                roleSwitcher.parentNode.insertBefore(msgContainer, roleSwitcher.nextSibling);
+            }
+        }
+        
+        // Set message style based on type
+        msgContainer.style.backgroundColor = isError ? '#f8d7da' : '#d4edda';
+        msgContainer.style.color = isError ? '#721c24' : '#155724';
+        msgContainer.innerText = message;
+        
+        // Auto-remove after 3 seconds
+        setTimeout(() => {
+            if (msgContainer.parentNode) {
+                msgContainer.parentNode.removeChild(msgContainer);
+            }
+        }, 3000);
+    }
+})();";
+
+        await context.Response.WriteAsync(js);
+    });
+
+
+
+    // Setup documents directory
     SetupDocumentsDirectory(app);
 }
 
