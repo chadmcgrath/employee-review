@@ -242,6 +242,7 @@ static void ConfigureSwagger(IServiceCollection services, IConfiguration configu
     });
 }
 
+// Add this to your ConfigureDevelopmentEnvironment method in Program.cs
 static void ConfigureDevelopmentEnvironment(WebApplication app)
 {
     app.UseDeveloperExceptionPage();
@@ -250,39 +251,32 @@ static void ConfigureDevelopmentEnvironment(WebApplication app)
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Employee Review API v1");
 
         // Inject our custom JavaScript for role switching
-        c.InjectJavascript("/swagger-ui/fixed-role-switcher.js");
+        c.InjectJavascript("/swagger-ui/simple-role-switcher.js");
     });
 
     // Serve our custom JavaScript file
-    app.MapGet("/swagger-ui/fixed-role-switcher.js", async context =>
+    app.MapGet("/swagger-ui/simple-role-switcher.js", async context =>
     {
         context.Response.ContentType = "application/javascript";
 
         string js = @"
-// Fixed Role Switcher with Proper Highlighting
+// Ultra Simple Role Switcher
 (function() {
-    // Debug flag - set to true to see debug logs
-    const DEBUG = true;
+    console.log('Role switcher script loaded');
     
-    function debugLog(...args) {
-        if (DEBUG) {
-            console.log('[Role Switcher]', ...args);
-        }
-    }
-
     // Wait for Swagger UI to finish loading
     const interval = setInterval(function() {
         if (document.querySelector('.swagger-ui')) {
             clearInterval(interval);
+            console.log('Swagger UI loaded, initializing role switcher');
             initRoleSwitcher();
         }
     }, 100);
 
     function initRoleSwitcher() {
-        debugLog('Initializing role switcher');
-        
         // Create role switcher container
         const container = document.createElement('div');
+        container.className = 'role-switcher';
         container.style.padding = '15px';
         container.style.backgroundColor = '#f0f0f0';
         container.style.margin = '10px 0';
@@ -295,89 +289,43 @@ static void ConfigureDevelopmentEnvironment(WebApplication app)
         title.style.margin = '0 0 10px 0';
         container.appendChild(title);
 
-        // Create button container
-        const buttonContainer = document.createElement('div');
-        buttonContainer.style.marginBottom = '10px';
-        buttonContainer.id = 'role-switcher-buttons';
-        container.appendChild(buttonContainer);
+        // Create token display
+        const tokenDisplay = document.createElement('div');
+        tokenDisplay.id = 'current-role-display';
+        tokenDisplay.style.marginBottom = '10px';
+        tokenDisplay.style.padding = '5px';
+        tokenDisplay.style.backgroundColor = '#ddd';
+        tokenDisplay.style.borderRadius = '4px';
+        tokenDisplay.style.fontWeight = 'bold';
+        container.appendChild(tokenDisplay);
 
-        // Add debug info container
-        const debugContainer = document.createElement('div');
-        debugContainer.style.marginTop = '10px';
-        debugContainer.style.padding = '10px';
-        debugContainer.style.backgroundColor = '#fff';
-        debugContainer.style.border = '1px solid #ddd';
-        debugContainer.style.borderRadius = '4px';
-        debugContainer.style.fontSize = '12px';
-        debugContainer.style.fontFamily = 'monospace';
-        debugContainer.style.whiteSpace = 'pre-wrap';
-        debugContainer.id = 'auth-debug-info';
-        container.appendChild(debugContainer);
-
-        // Create a refresh button for debug info
-        const refreshButton = document.createElement('button');
-        refreshButton.innerText = 'Refresh Token Info';
-        refreshButton.style.marginTop = '10px';
-        refreshButton.style.padding = '5px 10px';
-        refreshButton.onclick = function() {
-            updateDebugInfo();
-        };
-        container.appendChild(refreshButton);
+        // Add role buttons - SIMPLIFIED
+        addRoleButton(container, 'Admin');
+        addRoleButton(container, 'Employee');
+        addRoleButton(container, 'Reviewer');
 
         // Add to page
         const swaggerUi = document.querySelector('.swagger-ui');
         if (swaggerUi && swaggerUi.parentNode) {
             swaggerUi.parentNode.insertBefore(container, swaggerUi);
-            
-            // Now create the buttons
-            createRoleButtons();
+            console.log('Role switcher added to page');
             
             // Default to Admin if no role is selected
             const currentRole = localStorage.getItem('currentRole');
             if (!currentRole) {
-                debugLog('No role found in localStorage, defaulting to Admin');
-                switchToRole('Admin', null, null);
+                console.log('No role found, defaulting to Admin');
+                switchRole('Admin');
             } else {
-                debugLog('Found role in localStorage:', currentRole);
-                // Update debug info with current token
-                updateDebugInfo();
-                
-                // Update button styles based on stored values
-                updateButtonStyles();
+                console.log('Current role from localStorage:', currentRole);
+                updateRoleDisplay();
             }
         }
     }
-    
-    function createRoleButtons() {
-        const buttonContainer = document.getElementById('role-switcher-buttons');
-        if (!buttonContainer) {
-            debugLog('Button container not found');
-            return;
-        }
-        
-        // Clear existing buttons
-        buttonContainer.innerHTML = '';
-        
-        // Add role buttons
-        addRoleButton(buttonContainer, 'Admin', null, null);
-        addRoleButton(buttonContainer, 'Employee', 1, null);
-        addRoleButton(buttonContainer, 'Reviewer', null, 2);
-        
-        debugLog('Role buttons created');
-    }
 
-    function addRoleButton(container, role, employeeId, reviewerId) {
+    function addRoleButton(container, role) {
+        console.log('Adding button for role:', role);
         const button = document.createElement('button');
-        
-        // Convert all values to strings for consistency
-        const roleStr = String(role);
-        const empIdStr = employeeId ? String(employeeId) : '';
-        const revIdStr = reviewerId ? String(reviewerId) : '';
-        
-        button.innerText = roleStr + 
-                         (employeeId ? ' (ID: ' + employeeId + ')' : '') + 
-                         (reviewerId ? ' (Reviewer ID: ' + reviewerId + ')' : '');
-        
+        button.innerText = role;
         button.style.margin = '0 5px 5px 0';
         button.style.padding = '8px 15px';
         button.style.borderRadius = '4px';
@@ -386,34 +334,35 @@ static void ConfigureDevelopmentEnvironment(WebApplication app)
         button.style.cursor = 'pointer';
         button.style.fontWeight = 'bold';
         
-        // Store role info as data attributes (convert to strings)
-        button.setAttribute('data-role', roleStr);
-        button.setAttribute('data-employee-id', empIdStr);
-        button.setAttribute('data-reviewer-id', revIdStr);
+        // Check if this is the current role
+        const currentRole = localStorage.getItem('currentRole');
+        if (currentRole === role) {
+            button.style.backgroundColor = '#4CAF50';
+            button.style.color = 'white';
+            button.style.borderColor = '#4CAF50';
+        }
         
         button.onclick = function() {
-            debugLog('Button clicked:', roleStr, empIdStr, revIdStr);
-            switchToRole(roleStr, employeeId, reviewerId);
+            console.log('Button clicked for role:', role);
+            switchRole(role);
         };
         
         container.appendChild(button);
         return button;
     }
 
-    function setActiveButtonStyle(button) {
-        button.style.backgroundColor = '#4CAF50';
-        button.style.color = 'white';
-        button.style.borderColor = '#4CAF50';
-    }
-
-    function resetButtonStyle(button) {
-        button.style.backgroundColor = '#fff';
-        button.style.color = '#000';
-        button.style.borderColor = '#ccc';
-    }
-
-    function switchToRole(role, employeeId, reviewerId) {
-        debugLog('Switching to role:', role, employeeId, reviewerId);
+    function switchRole(role) {
+        console.log('Switching to role:', role);
+        
+        // Set default parameters based on role
+        let employeeId = null;
+        let reviewerId = null;
+        
+        if (role === 'Employee') {
+            employeeId = 1;
+        } else if (role === 'Reviewer') {
+            reviewerId = 2;
+        }
         
         // Build the URL with all parameters
         let url = '/api/v1/TestAuth/token?role=' + encodeURIComponent(role);
@@ -423,41 +372,37 @@ static void ConfigureDevelopmentEnvironment(WebApplication app)
         if (reviewerId) {
             url += '&reviewerId=' + encodeURIComponent(reviewerId);
         }
+        
+        console.log('Fetching token from URL:', url);
 
         // Fetch the token
         fetch(url)
             .then(response => {
+                console.log('Token fetch response status:', response.status);
                 if (!response.ok) {
                     throw new Error('Failed to get token: ' + response.status);
                 }
                 return response.json();
             })
             .then(data => {
-                // Store token and role info (convert to strings for consistency)
+                console.log('Token fetch successful, token starts with:', data.token.substring(0, 20) + '...');
+                
+                // Store token and role info
                 localStorage.setItem('authToken', data.token);
-                localStorage.setItem('currentRole', String(role));
-                localStorage.setItem('currentEmployeeId', employeeId ? String(employeeId) : '');
-                localStorage.setItem('currentReviewerId', reviewerId ? String(reviewerId) : '');
+                localStorage.setItem('currentRole', role);
                 
-                debugLog('Stored in localStorage:', {
-                    role: String(role),
-                    employeeId: employeeId ? String(employeeId) : '',
-                    reviewerId: reviewerId ? String(reviewerId) : ''
-                });
-                
-                // Hook fetch to add auth header
-                hookFetch(data.token);
+                // Update UI
+                updateRoleDisplay();
+                updateButtonStyles(role);
                 
                 // Show success message
-                showMessage('Now using role: ' + role + 
-                           (employeeId ? ' with Employee ID: ' + employeeId : '') +
-                           (reviewerId ? ' with Reviewer ID: ' + reviewerId : ''));
+                showMessage('Now using role: ' + role);
                 
-                // Update the visual state of buttons
-                updateButtonStyles();
+                // Apply token to subsequent requests
+                applyToken(data.token);
                 
-                // Update debug info
-                updateDebugInfo();
+                // Force reload the page to ensure the new token is used
+                window.location.reload();
             })
             .catch(error => {
                 console.error('Error getting token:', error);
@@ -465,124 +410,62 @@ static void ConfigureDevelopmentEnvironment(WebApplication app)
             });
     }
 
-    function hookFetch(token) {
-        // Only hook if not already hooked
-        if (!window.fetchHooked) {
-            const originalFetch = window.fetch;
-            window.fetch = function(resource, options) {
-                // Only modify API requests
-                if (typeof resource === 'string' && resource.includes('/api/')) {
-                    options = options || {};
-                    options.headers = options.headers || {};
-                    options.headers['Authorization'] = 'Bearer ' + token;
-                }
-                return originalFetch.call(this, resource, options);
-            };
-            window.fetchHooked = true;
-            debugLog('Fetch hooked to add auth token');
+    function updateRoleDisplay() {
+        const display = document.getElementById('current-role-display');
+        if (!display) return;
+        
+        const currentRole = localStorage.getItem('currentRole');
+        const token = localStorage.getItem('authToken');
+        
+        if (currentRole && token) {
+            display.innerText = 'Current Role: ' + currentRole;
+            display.style.color = '#000';
+        } else {
+            display.innerText = 'No role selected';
+            display.style.color = '#999';
         }
     }
 
-    function updateButtonStyles() {
-        // Get current values from localStorage
-        const currentRole = localStorage.getItem('currentRole') || '';
-        const currentEmpId = localStorage.getItem('currentEmployeeId') || '';
-        const currentRevId = localStorage.getItem('currentReviewerId') || '';
-        
-        debugLog('Updating button styles with:', currentRole, currentEmpId, currentRevId);
-        
+    function updateButtonStyles(currentRole) {
         // Reset all buttons first
-        const buttons = document.querySelectorAll('[data-role]');
-        debugLog('Found', buttons.length, 'role buttons');
-        
+        const buttons = document.querySelectorAll('.role-switcher button');
         buttons.forEach(button => {
-            resetButtonStyle(button);
-            
-            // Get data attributes (these are already strings from setAttribute)
-            const buttonRole = button.getAttribute('data-role');
-            const buttonEmpId = button.getAttribute('data-employee-id');
-            const buttonRevId = button.getAttribute('data-reviewer-id');
-            
-            debugLog('Button attributes:', buttonRole, buttonEmpId, buttonRevId);
-            debugLog('Comparing with:', currentRole, currentEmpId, currentRevId);
-            
-            // Check if this button matches the current role
-            if (buttonRole === currentRole && 
-                buttonEmpId === currentEmpId && 
-                buttonRevId === currentRevId) {
-                debugLog('Setting active style for button:', buttonRole);
-                setActiveButtonStyle(button);
+            button.style.backgroundColor = '#fff';
+            button.style.color = '#000';
+            button.style.borderColor = '#ccc';
+        });
+        
+        // Find and highlight the current role button
+        buttons.forEach(button => {
+            if (button.innerText === currentRole) {
+                button.style.backgroundColor = '#4CAF50';
+                button.style.color = 'white';
+                button.style.borderColor = '#4CAF50';
             }
         });
     }
 
-    function updateDebugInfo() {
-        const debugContainer = document.getElementById('auth-debug-info');
-        if (!debugContainer) return;
+    function applyToken(token) {
+        console.log('Setting up token for API requests');
         
-        const token = localStorage.getItem('authToken');
-        if (!token) {
-            debugContainer.innerText = 'No auth token found. Click a role button to get started.';
-            return;
-        }
+        // Override fetch to add Authorization header
+        const originalFetch = window.fetch;
+        window.fetch = function(resource, options) {
+            // Only modify API requests
+            if (typeof resource === 'string' && resource.includes('/api/')) {
+                console.log('Adding auth token to request:', resource);
+                options = options || {};
+                options.headers = options.headers || {};
+                options.headers['Authorization'] = 'Bearer ' + token;
+            }
+            return originalFetch.call(this, resource, options);
+        };
         
-        try {
-            // Decode the JWT token
-            const parts = token.split('.');
-            if (parts.length !== 3) {
-                debugContainer.innerText = 'Invalid token format';
-                return;
-            }
-            
-            // Decode the payload
-            const payload = JSON.parse(atob(parts[1]));
-            
-            // Format and display token info
-            let info = 'CURRENT TOKEN INFO:\\n';
-            info += '-----------------\\n';
-            info += 'Role: ' + (payload.role || payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || 'Not found') + '\\n';
-            
-            // Look for employee ID claim
-            const empIdClaim = Object.keys(payload).find(key => 
-                key === 'employeeId' || 
-                key === 'EmployeeId' || 
-                key.toLowerCase().includes('employeeid'));
-            
-            if (empIdClaim) {
-                info += 'Employee ID Claim (' + empIdClaim + '): ' + payload[empIdClaim] + '\\n';
-            } else {
-                info += 'Employee ID Claim: Not found\\n';
-            }
-            
-            // Look for reviewer ID claim
-            const revIdClaim = Object.keys(payload).find(key => 
-                key === 'reviewerId' || 
-                key === 'ReviewerId' || 
-                key.toLowerCase().includes('reviewerid'));
-            
-            if (revIdClaim) {
-                info += 'Reviewer ID Claim (' + revIdClaim + '): ' + payload[revIdClaim] + '\\n';
-            } else {
-                info += 'Reviewer ID Claim: Not found\\n';
-            }
-            
-            info += '\\nALL CLAIMS:\\n';
-            info += '-----------\\n';
-            Object.keys(payload).forEach(key => {
-                info += key + ': ' + payload[key] + '\\n';
-            });
-            
-            info += '\\nTOKEN:\\n';
-            info += '------\\n';
-            info += token.substring(0, 20) + '...' + token.substring(token.length - 10);
-            
-            debugContainer.innerText = info;
-        } catch (e) {
-            debugContainer.innerText = 'Error decoding token: ' + e.message;
-        }
+        console.log('Fetch overridden to add auth token');
     }
 
     function showMessage(text, isError) {
+        console.log('Showing message:', text, 'isError:', isError || false);
         const message = document.createElement('div');
         message.innerText = text;
         message.style.padding = '10px';
@@ -606,10 +489,11 @@ static void ConfigureDevelopmentEnvironment(WebApplication app)
         }, 3000);
     }
 
-    // Initialize with token from storage if available
+    // Initialize token from localStorage if available
     const storedToken = localStorage.getItem('authToken');
     if (storedToken) {
-        hookFetch(storedToken);
+        console.log('Found stored token, applying to requests');
+        applyToken(storedToken);
     }
 })();";
 
