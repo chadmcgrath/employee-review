@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Reflection;
-using static EmployeeReview.Application.Services.EmployeeService;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -100,12 +99,6 @@ services.AddAuthentication(options =>
 // Add API Key authentication scheme
 .AddScheme<ApiKeyAuthOptions, ApiKeyAuthHandler>("ApiKey", options => { });
 
-// Debug output to verify configuration
-Console.WriteLine($"JWT Secret from SecretService: {jwtSecret?.Substring(0, Math.Min(10, jwtSecret?.Length ?? 0))}...");
-Console.WriteLine($"JWT Issuer: {configuration["Jwt:Issuer"]}");
-Console.WriteLine($"JWT Audience: {configuration["Jwt:Audience"]}");
-
-// Build the application
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
@@ -153,7 +146,7 @@ static void ConfigureEnvironmentSpecificServices(IServiceCollection services, IC
     else
     {
         services.AddScoped<ISecretManagementService>(provider =>
-            new SecretManagementService(provider.GetRequiredService<IWebHostEnvironment>().EnvironmentName, "Reader"));
+            new SecretManagementService(provider.GetRequiredService<IWebHostEnvironment>().EnvironmentName, "Employee"));
     }
 }
 
@@ -368,4 +361,5 @@ public class SecurityRequirementsOperationFilter : Swashbuckle.AspNetCore.Swagge
         });
     }
 }
+
 public partial class Program { }

@@ -26,12 +26,25 @@ namespace EmployeeReview.Api.Controllers.REST
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        // GET: api/v1/reviews
+        [HttpGet]
+        [Authorize(Policy = PolicyNames.AdminOnly)]
+        [ProducesResponseType(typeof(IEnumerable<PerformanceReviewDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetReviews([FromQuery] string searchTerm = null, DateTime? fromDate = null)
+        {
+            _logger.LogInformation("Getting all performance reviews");
+
+            var reviews = await _reviewService.GetReviewsAsync(searchTerm, fromDate);
+
+            return Ok(reviews);
+        }
+
         // POST: api/v1/reviews
         [HttpPost]
         [Authorize(Policy = PolicyNames.AdminOnly)]
         [ProducesResponseType(typeof(PerformanceReviewDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> CreateReview([FromBody] CreatePerformanceReviewDto reviewDto)
         {
             _logger.LogInformation("Creating a new review for employee id={EmployeeId} by reviewer id={ReviewerId}",
@@ -94,7 +107,53 @@ namespace EmployeeReview.Api.Controllers.REST
             var reviews = await _reviewService.GetReviewsByEmployeeIdAsync(employeeId);
             return Ok(reviews);
         }
+        // PUT: api/v1/reviews/5
+        [HttpPut("{id}")]
+        [Authorize(Policy = PolicyNames.AdminOnly)]
+        [ProducesResponseType(typeof(PerformanceReviewDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> UpdateReview(int id, [FromBody] UpdatePerformanceReviewDto reviewDto)
+        {
+            _logger.LogInformation("Updating review with id={Id}", id);
 
+            try
+            {
+                var updatedReview = await _reviewService.UpdateReviewAsync(id, reviewDto);
+                if (updatedReview == null)
+                    return NotFound($"Review with ID {id} not found");
+
+                return Ok(updatedReview);
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning(ex, "Invalid review data");
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                _logger.LogWarning(ex, "Entity not found");
+                return NotFound(ex.Message);
+            }
+        }
+
+        // DELETE: api/v1/reviews/5
+        [HttpDelete("{id}")]
+        [Authorize(Policy = PolicyNames.AdminOnly)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> DeleteReview(int id)
+        {
+            _logger.LogInformation("Deleting review with id={Id}", id);
+
+            var result = await _reviewService.DeleteReviewAsync(id);
+            if (!result)
+                return NotFound($"Review with ID {id} not found");
+
+            return NoContent();
+        }
         // GET: api/v1/reviews/analytics
         [HttpGet("analytics")]
         [Authorize(Policy = PolicyNames.AdminOnly)]

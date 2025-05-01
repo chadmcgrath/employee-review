@@ -2,11 +2,13 @@
 using EmployeeReview.Contracts.DTOs;
 using EmployeeReview.Domain.Entities;
 using EmployeeReview.Infrastructure.Data;
+using System.Linq.Expressions;
 
 namespace EmployeeReview.Application.Services
 {
     public interface IPerformanceReviewService
     {
+        Task<IEnumerable<PerformanceReviewDto>> GetReviewsAsync(string searchTerm, DateTime? fromDate);
         Task<PerformanceReviewDto> GetReviewByIdAsync(int id);
         Task<IEnumerable<PerformanceReviewDto>> GetReviewsByEmployeeIdAsync(int employeeId);
         Task<PerformanceReviewDto> CreateReviewAsync(CreatePerformanceReviewDto reviewDto);
@@ -25,7 +27,23 @@ namespace EmployeeReview.Application.Services
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
+        public async Task<IEnumerable<PerformanceReviewDto>> GetReviewsAsync(string? searchTerm, DateTime? fromDate)
+        {
+            Expression<Func<PerformanceReview, bool>> predicate = r =>
+                (string.IsNullOrEmpty(searchTerm) || r.Employee.Name.Contains(searchTerm) || r.Reviewer.Name.Contains(searchTerm)) &&
+                (fromDate == null || r.ReviewDate >= fromDate.Value);
 
+            var reviews = await _unitOfWork.PerformanceReviewRepository.GetAsync(
+                predicate: predicate,
+                includes: new List<Expression<Func<PerformanceReview, object>>>
+                {
+                    r => r.Employee,
+                    r => r.Reviewer
+                }
+            );
+        
+            return _mapper.Map<IEnumerable<PerformanceReviewDto>>(reviews);
+        }
         public async Task<PerformanceReviewDto> GetReviewByIdAsync(int id)
         {
             // Using the repository method that returns DTO directly

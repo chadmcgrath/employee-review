@@ -28,7 +28,7 @@ namespace EmployeeReview.Application.Services
 
         public async Task<EmployeeDto> GetEmployeeByIdAsync(int id)
         {
-            // Using the repository method that returns DTO directly
+            // Using the repository method that returns DTO directly, this can return an inactive employee
             return await _unitOfWork.EmployeeRepository.GetEmployeeDtoByIdAsync(id);
         }
 
@@ -56,7 +56,6 @@ namespace EmployeeReview.Application.Services
                 totalCount = await _unitOfWork.EmployeeRepository.CountAsync(e => e.IsActive);
             }
 
-            // Create paginated result without loops
             return new PaginatedListDto<EmployeeDto>
             {
                 PageIndex = pageNumber,

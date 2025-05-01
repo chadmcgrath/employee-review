@@ -18,9 +18,20 @@ namespace EmployeeReview.Infrastructure.Data
             var context = services.GetRequiredService<AppDbContext>();
             var env = services.GetRequiredService<IHostEnvironment>();
 
+
+
             // Only seed in development environment
             if (!env.IsDevelopment())
                 return;
+
+            // Check if using a relational database provider
+            var providerName = context.Database.ProviderName;
+            bool isRelational = providerName == "Microsoft.EntityFrameworkCore.SqlServer" ||
+                                providerName == "Microsoft.EntityFrameworkCore.Sqlite" ||
+                                providerName == "Npgsql.EntityFrameworkCore.PostgreSQL"; 
+
+            if (!isRelational)
+                return; 
 
             await context.Database.EnsureCreatedAsync();
             await context.Database.MigrateAsync();

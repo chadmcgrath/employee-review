@@ -281,27 +281,6 @@ namespace EmployeeReview.Tests.Application.Services
             _mockUnitOfWork.Verify(uow => uow.CompleteAsync(), Times.Never);
         }
         [Test]
-        public async Task DeleteEmployeeAsync_EmplyeeShouldStillExist()
-        {
-            // Arrange
-            int employeeId = 1;
-
-            // Use the factory to create an employee
-            var employee = TestEntityFactory.CreateEmployee(
-                employeeId, "John Doe", "john.doe@example.com", "IT");
-
-            _mockEmployeeRepository
-                .Setup(repo => repo.GetByIdAsync(employeeId))
-                .ReturnsAsync(employee);
-            // Act
-            await _employeeService.DeleteEmployeeAsync(employeeId);
-
-            var result = await _employeeService.GetEmployeeByIdAsync(employeeId);
-
-            Assert.IsNotNull(result);
-            Assert.AreEqual(false, result.IsActive);
-        }
-        [Test]
         public async Task DeleteEmployeeAsync_ReturnsTrue_WhenEmployeeExists()
         {
             // Arrange

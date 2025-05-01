@@ -26,6 +26,7 @@ namespace EmployeeReview.Api.Controllers.REST
         [HttpGet]
         [Authorize(Policy = PolicyNames.AdminOnly)]
         [ProducesResponseType(typeof(PaginatedListDto<EmployeeDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PaginatedListDto<EmployeeDto>), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetEmployees([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10,
                                                      [FromQuery] string searchTerm = null, [FromQuery] string department = null)
         {
