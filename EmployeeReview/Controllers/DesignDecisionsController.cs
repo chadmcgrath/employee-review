@@ -29,7 +29,7 @@ namespace EmployeeReview.Api.Controllers
         {
             _logger.LogInformation("Retrieving design decisions document");
 
-            var filePath = Path.Combine(_environment.ContentRootPath, "Documents", "DesignDecisions.docx");
+            var filePath = Path.Combine(_environment.ContentRootPath, "Documents", "ReadMe.docx");
 
             if (!System.IO.File.Exists(filePath))
             {
@@ -38,7 +38,7 @@ namespace EmployeeReview.Api.Controllers
             }
 
             _logger.LogInformation("Returning design decisions document from {FilePath}", filePath);
-            return PhysicalFile(filePath, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "DesignDecisions.docx");
+            return PhysicalFile(filePath, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "ReadMe.docx");
         }
     }
 }
