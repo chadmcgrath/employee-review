@@ -1,5 +1,4 @@
-﻿
-using EmployeeReview.Application.Services;
+﻿using EmployeeReview.Application.Services;
 using EmployeeReview.Infrastructure.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -28,12 +27,15 @@ namespace EmployeeReview.Api.Controllers
             _secretService = secretService ?? throw new ArgumentNullException(nameof(secretService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
-        
+
         [HttpGet("token")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetToken([FromQuery] string role = "Admin")
+        public async Task<IActionResult> GetToken(
+            [FromQuery] string role = "Admin",
+            [FromQuery] int? employeeId = null,
+            [FromQuery] int? reviewerId = null)
         {
             // Only allow in development environment
             if (!_environment.IsDevelopment())
@@ -42,28 +44,28 @@ namespace EmployeeReview.Api.Controllers
                 return BadRequest("This endpoint is only available in development environment");
             }
 
-            _logger.LogInformation("Generating test token with role={Role}", role);
-
-            int? employeeId = null;
-            int? reviewerId = null;
-
-            // Set claims based on role
-            switch (role)
+            // If no explicit employeeId/reviewerId was provided, use default values based on role
+            if (role == UserRoles.Employee && !employeeId.HasValue)
             {
-                case UserRoles.Employee:
-                    employeeId = 1;  // Mock employee ID
-                    break;
-                case UserRoles.Reviewer:
-                    reviewerId = 2;  // Mock reviewer ID
-                    break;
-                case UserRoles.Admin:
-                    // Admin doesn't need specific claims
-                    break;
-                default:
-                    return BadRequest($"Invalid role: {role}. Supported roles: Admin, Employee, Reviewer");
+                employeeId = 1;  // Default employee ID
+            }
+            else if (role == UserRoles.Reviewer && !reviewerId.HasValue)
+            {
+                reviewerId = 2;  // Default reviewer ID
             }
 
+            _logger.LogInformation("Generating test token with role={Role}, employeeId={EmployeeId}, reviewerId={ReviewerId}",
+                role, employeeId, reviewerId);
+
             var token = await _jwtHandler.GenerateTokenAsync("testuser", role, employeeId, reviewerId);
+
+            // For easier debugging, decode and log the claims
+            var tokenHandler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+            var decodedToken = tokenHandler.ReadJwtToken(token);
+
+            _logger.LogInformation("Generated token with claims: {@Claims}",
+                decodedToken.Claims.Select(c => new { c.Type, c.Value }));
+
             return Ok(new { token });
         }
 

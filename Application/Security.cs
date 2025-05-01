@@ -46,46 +46,142 @@ namespace EmployeeReview.Infrastructure.Security
 
     public class ReviewAccessHandler : AuthorizationHandler<ReviewAccessRequirement>
     {
+        private readonly ILogger<ReviewAccessHandler> _logger;
+
+        public ReviewAccessHandler(ILogger<ReviewAccessHandler> logger = null)
+        {
+            _logger = logger;
+        }
+
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, ReviewAccessRequirement requirement)
         {
-            // Parse the resource to get employee ID and reviewer ID
-            int? employeeId = null;
-            int? reviewerId = null;
-
-            if (context.Resource is Tuple<int, int> ids)
-            {
-                employeeId = ids.Item1;
-                reviewerId = ids.Item2;
-            }
+            _logger?.LogDebug("Evaluating ReviewAccess authorization");
 
             // Admin always has access
             if (context.User.IsInRole(UserRoles.Admin))
             {
+                _logger?.LogDebug("User is Admin - access granted");
                 context.Succeed(requirement);
                 return Task.CompletedTask;
             }
 
-            // Check if user is the employee being reviewed
-            if (employeeId.HasValue &&
-                context.User.HasClaim(c => c.Type == CustomClaimTypes.EmployeeId && c.Value == employeeId.Value.ToString()))
+            // Reviewer has access to all employees
+            if (context.User.IsInRole(UserRoles.Reviewer))
             {
+                _logger?.LogDebug("User is Reviewer - access granted");
                 context.Succeed(requirement);
                 return Task.CompletedTask;
             }
 
-            // Check if user is the reviewer
-            if (reviewerId.HasValue &&
-                context.User.HasClaim(c => c.Type == CustomClaimTypes.ReviewerId && c.Value == reviewerId.Value.ToString()))
+            // Extract employee ID from resource
+            int? employeeId = GetEmployeeIdFromResource(context.Resource);
+            _logger?.LogDebug("Extracted employee ID from resource: {EmployeeId}", employeeId);
+
+            // If we couldn't determine the employee ID, deny access
+            if (!employeeId.HasValue)
             {
+                _logger?.LogDebug("Could not determine employee ID - access denied");
+                context.Fail();
+                return Task.CompletedTask;
+            }
+
+            // Check if user is the employee
+            var employeeIdClaim = context.User.FindFirst(CustomClaimTypes.EmployeeId);
+            if (employeeIdClaim != null && employeeIdClaim.Value == employeeId.Value.ToString())
+            {
+                _logger?.LogDebug("User is the employee - access granted");
                 context.Succeed(requirement);
                 return Task.CompletedTask;
             }
 
             // Not authorized
+            _logger?.LogDebug("User is not authorized to access this resource");
             context.Fail();
             return Task.CompletedTask;
         }
+
+        private int? GetEmployeeIdFromResource(object resource)
+        {
+            _logger?.LogDebug("Getting employee ID from resource type: {ResourceType}",
+                resource?.GetType().Name ?? "null");
+
+            if (resource == null)
+                return null;
+
+            // If resource is a Tuple<int, int> (legacy format)
+            if (resource is Tuple<int, int> ids)
+            {
+                _logger?.LogDebug("Resource is Tuple<int, int>: Employee ID = {EmployeeId}, Reviewer ID = {ReviewerId}",
+                    ids.Item1, ids.Item2);
+                return ids.Item1; // Employee ID is first item
+            }
+
+            // Direct int value
+            if (resource is int employeeId)
+            {
+                _logger?.LogDebug("Resource is direct int: {EmployeeId}", employeeId);
+                return employeeId;
+            }
+
+            // If the resource is a RouteValueDictionary (from route data)
+            if (resource is Microsoft.AspNetCore.Routing.RouteValueDictionary routeValues)
+            {
+                _logger?.LogDebug("Resource is RouteValueDictionary with keys: {Keys}",
+                    string.Join(", ", routeValues.Keys));
+
+                // Try to get employeeId from route values
+                if (routeValues.TryGetValue("employeeId", out var idObj) &&
+                    int.TryParse(idObj?.ToString(), out var parsedId))
+                {
+                    _logger?.LogDebug("Found employeeId in route values: {EmployeeId}", parsedId);
+                    return parsedId;
+                }
+
+                // Also check for 'id' which might be an employee ID
+                if (routeValues.TryGetValue("id", out var idObj2) &&
+                    int.TryParse(idObj2?.ToString(), out var parsedId2))
+                {
+                    _logger?.LogDebug("Found id in route values: {EmployeeId}", parsedId2);
+                    return parsedId2;
+                }
+            }
+
+            // If the resource implements IEmployeeResource interface
+            if (resource is IEmployeeResource employeeResource)
+            {
+                _logger?.LogDebug("Resource implements IEmployeeResource: {EmployeeId}",
+                    employeeResource.EmployeeId);
+                return employeeResource.EmployeeId;
+            }
+
+            // If resource is a HttpContext
+            if (resource is Microsoft.AspNetCore.Http.HttpContext httpContext)
+            {
+                _logger?.LogDebug("Resource is HttpContext with route values: {RouteValues}",
+                    string.Join(", ", httpContext.Request.RouteValues.Select(kv => $"{kv.Key}={kv.Value}")));
+
+                // Try to get employeeId from route
+                if (httpContext.Request.RouteValues.TryGetValue("employeeId", out var idObj) &&
+                    int.TryParse(idObj?.ToString(), out var parsedId))
+                {
+                    _logger?.LogDebug("Found employeeId in HttpContext route values: {EmployeeId}", parsedId);
+                    return parsedId;
+                }
+
+                // Try to get from query string
+                if (httpContext.Request.Query.TryGetValue("employeeId", out var queryValues) &&
+                    int.TryParse(queryValues.FirstOrDefault(), out var queryId))
+                {
+                    _logger?.LogDebug("Found employeeId in query string: {EmployeeId}", queryId);
+                    return queryId;
+                }
+            }
+
+            _logger?.LogDebug("Could not extract employee ID from resource");
+            return null;
+        }
     }
+    
 
     public class JwtHandler
     {
@@ -102,37 +198,47 @@ namespace EmployeeReview.Infrastructure.Security
             _expiryInMinutes = expiryInMinutes > 0 ? expiryInMinutes : throw new ArgumentException("Expiry must be greater than 0", nameof(expiryInMinutes));
         }
 
-        public async Task<string> GenerateTokenAsync(string userId, string role, int? employeeId = null, int? reviewerId = null)
+        // Make sure it's adding the EmployeeId claim correctly
+
+        public async Task<string> GenerateTokenAsync(string username, string role, int? employeeId = null, int? reviewerId = null)
         {
-            var secretKey = await _secretService.GetSecretAsync("JwtSecret");
-            var key = Encoding.ASCII.GetBytes(secretKey);
-
-            var claims = new ClaimsIdentity(new[]
+            // Get the secret
+            var secret = await _secretService.GetSecretAsync("JwtSecret");
+            if (string.IsNullOrEmpty(secret))
             {
-                new Claim(ClaimTypes.NameIdentifier, userId),
-                new Claim(ClaimTypes.Role, role),
-            });
+                throw new InvalidOperationException("JWT secret not found");
+            }
 
-            // Add optional claims if provided
+            var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Name, username),
+        new Claim(ClaimTypes.Role, role)
+    };
+
+            // Add EmployeeId claim if provided
             if (employeeId.HasValue)
-                claims.AddClaim(new Claim(CustomClaimTypes.EmployeeId, employeeId.Value.ToString()));
-
-            if (reviewerId.HasValue)
-                claims.AddClaim(new Claim(CustomClaimTypes.ReviewerId, reviewerId.Value.ToString()));
-
-            var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = claims,
-                Expires = DateTime.UtcNow.AddMinutes(_expiryInMinutes),
-                Issuer = _issuer,
-                Audience = _audience,
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
+                // IMPORTANT: Make sure the claim type matches what's checked in the authorization handler
+                claims.Add(new Claim(CustomClaimTypes.EmployeeId, employeeId.Value.ToString()));
+            }
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(tokenDescriptor);
+            // Add ReviewerId claim if provided
+            if (reviewerId.HasValue)
+            {
+                claims.Add(new Claim(CustomClaimTypes.ReviewerId, reviewerId.Value.ToString()));
+            }
 
-            return tokenHandler.WriteToken(token);
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: _issuer,
+                audience: _audience,
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(_expiryInMinutes),
+                signingCredentials: creds);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         public static void ConfigureJwtAuthentication(IServiceCollection services, string issuer, string audience, string secretKey)
@@ -278,34 +384,174 @@ namespace EmployeeReview.Infrastructure.Security
 
     public class EmployeeAccessHandler : AuthorizationHandler<EmployeeAccessRequirement>
     {
+        private readonly ILogger<EmployeeAccessHandler> _logger;
+
+        public EmployeeAccessHandler(ILogger<EmployeeAccessHandler> logger = null)
+        {
+            _logger = logger;
+        }
+
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, EmployeeAccessRequirement requirement)
         {
-            // Get the requested employee ID from the resource
-            int? requestedEmployeeId = null;
-            if (context.Resource is int employeeId)
-            {
-                requestedEmployeeId = employeeId;
-            }
+            _logger?.LogDebug("Evaluating EmployeeAccess authorization");
+            _logger?.LogDebug("User claims: {@Claims}", context.User.Claims.Select(c => new { c.Type, c.Value }));
 
             // Check if user is an Admin (always allowed)
             if (context.User.IsInRole(UserRoles.Admin))
             {
+                _logger?.LogDebug("User is in Admin role - access granted");
                 context.Succeed(requirement);
                 return Task.CompletedTask;
             }
 
-            // Check if user is the employee in question
-            if (requestedEmployeeId.HasValue &&
-                context.User.HasClaim(c => c.Type == CustomClaimTypes.EmployeeId && c.Value == requestedEmployeeId.Value.ToString()))
+            // Get employee ID from claims
+            var employeeIdClaim = context.User.FindFirst(CustomClaimTypes.EmployeeId);
+
+            if (employeeIdClaim == null)
             {
+                _logger?.LogDebug("No EmployeeId claim found - access denied");
+                _logger?.LogDebug("Available claim types: {@ClaimTypes}",
+                    context.User.Claims.Select(c => c.Type).ToList());
+                context.Fail();
+                return Task.CompletedTask;
+            }
+
+            // Log the user's employee ID
+            _logger?.LogDebug("User has EmployeeId claim: {EmployeeId}", employeeIdClaim.Value);
+
+            // Get the requested employee ID from the resource
+            int? requestedEmployeeId = GetEmployeeIdFromResource(context.Resource);
+            _logger?.LogDebug("Requested EmployeeId from resource: {RequestedEmployeeId}", requestedEmployeeId);
+
+            // If we couldn't determine the requested employee ID, deny access
+            if (!requestedEmployeeId.HasValue)
+            {
+                _logger?.LogDebug("Could not determine requested EmployeeId - access denied");
+                _logger?.LogDebug("Resource type: {ResourceType}", context.Resource?.GetType().Name ?? "null");
+                _logger?.LogDebug("Resource value: {ResourceValue}", context.Resource?.ToString() ?? "null");
+                context.Fail();
+                return Task.CompletedTask;
+            }
+
+            // Compare user's employee ID with the requested employee ID
+            // IMPORTANT: Convert both to string for comparison to avoid type mismatches
+            string employeeIdString = employeeIdClaim.Value;
+            string requestedIdString = requestedEmployeeId.Value.ToString();
+
+            _logger?.LogDebug("Comparing claim value '{ClaimValue}' with requested ID '{RequestedId}'",
+                employeeIdString, requestedIdString);
+
+            if (string.Equals(employeeIdString, requestedIdString, StringComparison.OrdinalIgnoreCase))
+            {
+                _logger?.LogDebug("User's EmployeeId matches requested EmployeeId - access granted");
                 context.Succeed(requirement);
                 return Task.CompletedTask;
             }
 
             // Not authorized
+            _logger?.LogDebug("User's EmployeeId does not match requested EmployeeId - access denied");
             context.Fail();
             return Task.CompletedTask;
         }
+
+        private int? GetEmployeeIdFromResource(object resource)
+        {
+            try
+            {
+                // Log the resource type to help with debugging
+                _logger?.LogDebug("Extracting employee ID from resource type: {ResourceType}",
+                    resource?.GetType().Name ?? "null");
+
+                // Check different resource types to extract employee ID
+                if (resource == null)
+                    return null;
+
+                // Direct int value
+                if (resource is int employeeId)
+                {
+                    _logger?.LogDebug("Resource is direct int: {EmployeeId}", employeeId);
+                    return employeeId;
+                }
+
+                // If the resource is a RouteValueDictionary (from route data)
+                if (resource is Microsoft.AspNetCore.Routing.RouteValueDictionary routeValues)
+                {
+                    _logger?.LogDebug("Resource is RouteValueDictionary with keys: {Keys}",
+                        string.Join(", ", routeValues.Keys));
+
+                    // Try to get employeeId from route values
+                    if (routeValues.TryGetValue("employeeId", out var idObj) &&
+                        int.TryParse(idObj?.ToString(), out var parsedId))
+                    {
+                        _logger?.LogDebug("Found employeeId in route values: {EmployeeId}", parsedId);
+                        return parsedId;
+                    }
+
+                    // Also check for 'id' which might be an employee ID
+                    if (routeValues.TryGetValue("id", out var idObj2) &&
+                        int.TryParse(idObj2?.ToString(), out var parsedId2))
+                    {
+                        _logger?.LogDebug("Found id in route values: {EmployeeId}", parsedId2);
+                        return parsedId2;
+                    }
+                }
+
+                // If the resource implements IEmployeeResource interface
+                if (resource is IEmployeeResource employeeResource)
+                {
+                    _logger?.LogDebug("Resource implements IEmployeeResource: {EmployeeId}",
+                        employeeResource.EmployeeId);
+                    return employeeResource.EmployeeId;
+                }
+
+                // If resource is a HttpContext
+                if (resource is Microsoft.AspNetCore.Http.HttpContext httpContext)
+                {
+                    _logger?.LogDebug("Resource is HttpContext with route values: {RouteValues}",
+                        string.Join(", ", httpContext.Request.RouteValues.Select(kv => $"{kv.Key}={kv.Value}")));
+
+                    // Try to get employeeId from route
+                    if (httpContext.Request.RouteValues.TryGetValue("employeeId", out var idObj) &&
+                        int.TryParse(idObj?.ToString(), out var parsedId))
+                    {
+                        _logger?.LogDebug("Found employeeId in HttpContext route values: {EmployeeId}", parsedId);
+                        return parsedId;
+                    }
+
+                    // Also check for 'id' from route
+                    if (httpContext.Request.RouteValues.TryGetValue("id", out var idObj2) &&
+                        int.TryParse(idObj2?.ToString(), out var parsedId2))
+                    {
+                        _logger?.LogDebug("Found id in HttpContext route values: {EmployeeId}", parsedId2);
+                        return parsedId2;
+                    }
+
+                    // Try to get from query string
+                    if (httpContext.Request.Query.TryGetValue("employeeId", out var queryValues) &&
+                        int.TryParse(queryValues.FirstOrDefault(), out var queryId))
+                    {
+                        _logger?.LogDebug("Found employeeId in query string: {EmployeeId}", queryId);
+                        return queryId;
+                    }
+                }
+
+                // Could not determine employee ID
+                _logger?.LogDebug("Could not extract employee ID from resource");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error extracting employee ID from resource");
+                return null;
+            }
+        }
+    }
+    
+
+    // Interface that can be implemented by resource types to provide employee ID
+    public interface IEmployeeResource
+    {
+        int EmployeeId { get; }
     }
 }
 

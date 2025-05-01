@@ -242,6 +242,7 @@ static void ConfigureSwagger(IServiceCollection services, IConfiguration configu
     });
 }
 
+// Add this to your ConfigureDevelopmentEnvironment method in Program.cs
 static void ConfigureDevelopmentEnvironment(WebApplication app)
 {
     app.UseDeveloperExceptionPage();
@@ -249,18 +250,17 @@ static void ConfigureDevelopmentEnvironment(WebApplication app)
     app.UseSwaggerUI(c => {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Employee Review API v1");
 
-        // Important: Inject our custom JavaScript for role switching
-        c.InjectJavascript("/swagger-ui/role-switcher.js");
+        // Inject our custom JavaScript for role switching
+        c.InjectJavascript("/swagger-ui/simple-role-switcher.js");
     });
 
     // Serve our custom JavaScript file
-    app.MapGet("/swagger-ui/role-switcher.js", async context =>
+    app.MapGet("/swagger-ui/simple-role-switcher.js", async context =>
     {
         context.Response.ContentType = "application/javascript";
 
-        // This is the JavaScript content - replace with your actual file path if you want to serve from disk
         string js = @"
-// role-switcher.js
+// Simple Role Switcher with Debug Info
 (function() {
     // Wait for Swagger UI to finish loading
     const interval = setInterval(function() {
@@ -273,190 +273,282 @@ static void ConfigureDevelopmentEnvironment(WebApplication app)
     function initRoleSwitcher() {
         // Create role switcher container
         const container = document.createElement('div');
-        container.className = 'role-switcher';
-        container.style.padding = '10px';
-        container.style.backgroundColor = '#f8f8f8';
-        container.style.borderRadius = '4px';
+        container.style.padding = '15px';
+        container.style.backgroundColor = '#f0f0f0';
         container.style.margin = '10px 0';
-        container.style.textAlign = 'center';
-        container.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+        container.style.borderRadius = '4px';
+        container.style.border = '1px solid #ddd';
 
-        // Add title
-        const title = document.createElement('div');
-        title.innerText = 'Test with different roles:';
-        title.style.fontWeight = 'bold';
-        title.style.marginBottom = '8px';
+        // Create title
+        const title = document.createElement('h3');
+        title.innerText = 'Test with different roles';
+        title.style.margin = '0 0 10px 0';
         container.appendChild(title);
 
+        // Create button container
+        const buttonContainer = document.createElement('div');
+        buttonContainer.style.marginBottom = '10px';
+        container.appendChild(buttonContainer);
+
         // Add role buttons
-        const roles = ['Admin', 'Employee', 'Reviewer'];
-        roles.forEach(role => {
-            const button = document.createElement('button');
-            button.innerText = role;
-            button.style.margin = '0 5px';
-            button.style.padding = '6px 12px';
-            button.style.border = '1px solid #ccc';
-            button.style.borderRadius = '4px';
-            button.style.cursor = 'pointer';
-            button.style.backgroundColor = '#fff';
-            button.style.fontWeight = 'normal';
-            button.dataset.role = role;
-            
-            // Add current role indicator
-            const currentRole = localStorage.getItem('currentRole');
-            if (currentRole === role) {
-                button.style.backgroundColor = '#4CAF50';
-                button.style.color = 'white';
-                button.style.borderColor = '#4CAF50';
-            }
-            
-            button.addEventListener('click', function() {
-                switchRole(role);
-            });
-            
-            container.appendChild(button);
-        });
+        addRoleButton(buttonContainer, 'Admin', null, null);
+        addRoleButton(buttonContainer, 'Employee', 1, null);
+        addRoleButton(buttonContainer, 'Reviewer', null, 2);
 
-        // Add a status line to show current token
-        const statusLine = document.createElement('div');
-        statusLine.className = 'status-line';
-        statusLine.style.fontSize = '12px';
-        statusLine.style.marginTop = '8px';
-        statusLine.style.color = '#666';
-        container.appendChild(statusLine);
-        
-        updateStatusLine(statusLine);
+        // Add debug info container
+        const debugContainer = document.createElement('div');
+        debugContainer.style.marginTop = '10px';
+        debugContainer.style.padding = '10px';
+        debugContainer.style.backgroundColor = '#fff';
+        debugContainer.style.border = '1px solid #ddd';
+        debugContainer.style.borderRadius = '4px';
+        debugContainer.style.fontSize = '12px';
+        debugContainer.style.fontFamily = 'monospace';
+        debugContainer.style.whiteSpace = 'pre-wrap';
+        debugContainer.id = 'auth-debug-info';
+        container.appendChild(debugContainer);
 
-        // Insert before the Swagger UI container
+        // Create a refresh button for debug info
+        const refreshButton = document.createElement('button');
+        refreshButton.innerText = 'Refresh Token Info';
+        refreshButton.style.marginTop = '10px';
+        refreshButton.style.padding = '5px 10px';
+        refreshButton.onclick = function() {
+            updateDebugInfo();
+        };
+        container.appendChild(refreshButton);
+
+        // Add to page
         const swaggerUi = document.querySelector('.swagger-ui');
         if (swaggerUi && swaggerUi.parentNode) {
             swaggerUi.parentNode.insertBefore(container, swaggerUi);
         }
-        
-        // If we have a token, add it to authorization
-        const token = localStorage.getItem('authToken');
-        if (token) {
-            addAuthToRequests(token);
-        }
+
+        // Update debug info initially
+        updateDebugInfo();
     }
 
-    function switchRole(role) {
-        // Fetch token from the TestAuth API
-        fetch(`/api/v1/TestAuth/token?role=${role}`)
-            .then(response => response.json())
+    function addRoleButton(container, role, employeeId, reviewerId) {
+        const button = document.createElement('button');
+        button.innerText = role + (employeeId ? ' (ID: ' + employeeId + ')' : '') + 
+                          (reviewerId ? ' (Reviewer ID: ' + reviewerId + ')' : '');
+        button.style.margin = '0 5px 5px 0';
+        button.style.padding = '8px 15px';
+        button.style.borderRadius = '4px';
+        button.style.border = '1px solid #ccc';
+        button.style.backgroundColor = '#fff';
+        button.style.cursor = 'pointer';
+        button.style.fontWeight = 'bold';
+        
+        // Check if this is the current role
+        const currentToken = localStorage.getItem('authToken');
+        const currentRole = localStorage.getItem('currentRole');
+        const currentEmpId = localStorage.getItem('currentEmployeeId');
+        const currentRevId = localStorage.getItem('currentReviewerId');
+        
+        if (currentRole === role && 
+            ((!employeeId && !currentEmpId) || (employeeId && currentEmpId == employeeId)) &&
+            ((!reviewerId && !currentRevId) || (reviewerId && currentRevId == reviewerId))) {
+            button.style.backgroundColor = '#4CAF50';
+            button.style.color = 'white';
+            button.style.borderColor = '#4CAF50';
+        }
+        
+        button.onclick = function() {
+            switchToRole(role, employeeId, reviewerId);
+        };
+        
+        container.appendChild(button);
+        return button;
+    }
+
+    function switchToRole(role, employeeId, reviewerId) {
+        // Build the URL with all parameters
+        let url = '/api/v1/TestAuth/token?role=' + encodeURIComponent(role);
+        if (employeeId) {
+            url += '&employeeId=' + encodeURIComponent(employeeId);
+        }
+        if (reviewerId) {
+            url += '&reviewerId=' + encodeURIComponent(reviewerId);
+        }
+
+        // Fetch the token
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to get token: ' + response.status);
+                }
+                return response.json();
+            })
             .then(data => {
-                // Save token and role to localStorage
+                // Store token and role info
                 localStorage.setItem('authToken', data.token);
                 localStorage.setItem('currentRole', role);
+                localStorage.setItem('currentEmployeeId', employeeId || '');
+                localStorage.setItem('currentReviewerId', reviewerId || '');
                 
-                // Update UI to reflect the change
-                updateRoleButtons(role);
+                // Hook fetch to add auth header
+                hookFetch(data.token);
                 
-                // Update token in requests
-                addAuthToRequests(data.token);
+                // Show success message and update debug info
+                showMessage('Now using role: ' + role + 
+                           (employeeId ? ' with Employee ID: ' + employeeId : '') +
+                           (reviewerId ? ' with Reviewer ID: ' + reviewerId : ''));
                 
-                // Show success message
-                showMessage(`Now testing as: ${role}`);
+                // Update the visual state of buttons
+                updateButtonStyles(role, employeeId, reviewerId);
                 
-                // Update status line
-                updateStatusLine(document.querySelector('.status-line'));
-                
-                // Reload the page to refresh the Swagger UI
-                window.location.reload();
+                // Update debug info
+                updateDebugInfo();
             })
             .catch(error => {
-                console.error('Error switching role:', error);
-                showMessage('Error switching role. Check console for details.', true);
+                console.error('Error getting token:', error);
+                showMessage('Error: ' + error.message, true);
             });
     }
 
-    function updateRoleButtons(currentRole) {
-        // Update all role buttons to reflect current selection
-        const buttons = document.querySelectorAll('.role-switcher button');
+    function hookFetch(token) {
+        // Only hook if not already hooked
+        if (!window.fetchHooked) {
+            const originalFetch = window.fetch;
+            window.fetch = function(resource, options) {
+                // Only modify API requests
+                if (typeof resource === 'string' && resource.includes('/api/')) {
+                    options = options || {};
+                    options.headers = options.headers || {};
+                    options.headers['Authorization'] = 'Bearer ' + token;
+                }
+                return originalFetch.call(this, resource, options);
+            };
+            window.fetchHooked = true;
+        }
+    }
+
+    function updateButtonStyles(currentRole, currentEmpId, currentRevId) {
+        const buttons = document.querySelectorAll('.swagger-ui button');
+        // Reset all buttons first
         buttons.forEach(button => {
-            if (button.dataset.role === currentRole) {
-                button.style.backgroundColor = '#4CAF50';
-                button.style.color = 'white';
-                button.style.borderColor = '#4CAF50';
-            } else {
+            if (button.innerText.includes('Admin') || 
+                button.innerText.includes('Employee') || 
+                button.innerText.includes('Reviewer')) {
                 button.style.backgroundColor = '#fff';
                 button.style.color = '#000';
                 button.style.borderColor = '#ccc';
             }
         });
+        
+        // Highlight the current role button
+        buttons.forEach(button => {
+            const text = button.innerText;
+            if ((text.includes(currentRole)) &&
+                (!currentEmpId || text.includes('ID: ' + currentEmpId)) &&
+                (!currentRevId || text.includes('Reviewer ID: ' + currentRevId))) {
+                button.style.backgroundColor = '#4CAF50';
+                button.style.color = 'white';
+                button.style.borderColor = '#4CAF50';
+            }
+        });
     }
 
-    function updateStatusLine(statusLine) {
-        if (!statusLine) return;
+    function updateDebugInfo() {
+        const debugContainer = document.getElementById('auth-debug-info');
+        if (!debugContainer) return;
         
-        const role = localStorage.getItem('currentRole');
         const token = localStorage.getItem('authToken');
+        if (!token) {
+            debugContainer.innerText = 'No auth token found. Click a role button to get started.';
+            return;
+        }
         
-        if (role && token) {
-            statusLine.innerText = `Active role: ${role} (token automatically applied to all requests)`;
-        } else {
-            statusLine.innerText = 'No role selected';
+        try {
+            // Decode the JWT token
+            const parts = token.split('.');
+            if (parts.length !== 3) {
+                debugContainer.innerText = 'Invalid token format';
+                return;
+            }
+            
+            // Decode the payload
+            const payload = JSON.parse(atob(parts[1]));
+            
+            // Format and display token info
+            let info = 'CURRENT TOKEN INFO:\\n';
+            info += '-----------------\\n';
+            info += 'Role: ' + (payload.role || payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || 'Not found') + '\\n';
+            
+            // Look for employee ID claim
+            const empIdClaim = Object.keys(payload).find(key => 
+                key === 'EmployeeId' || 
+                key === 'employeeId' || 
+                key === 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/employeeId');
+            
+            if (empIdClaim) {
+                info += 'Employee ID Claim (' + empIdClaim + '): ' + payload[empIdClaim] + '\\n';
+            } else {
+                info += 'Employee ID Claim: Not found\\n';
+            }
+            
+            // Look for reviewer ID claim
+            const revIdClaim = Object.keys(payload).find(key => 
+                key === 'ReviewerId' || 
+                key === 'reviewerId' || 
+                key === 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/reviewerId');
+            
+            if (revIdClaim) {
+                info += 'Reviewer ID Claim (' + revIdClaim + '): ' + payload[revIdClaim] + '\\n';
+            } else {
+                info += 'Reviewer ID Claim: Not found\\n';
+            }
+            
+            info += '\\nALL CLAIMS:\\n';
+            info += '-----------\\n';
+            Object.keys(payload).forEach(key => {
+                info += key + ': ' + payload[key] + '\\n';
+            });
+            
+            info += '\\nTOKEN:\\n';
+            info += '------\\n';
+            info += token.substring(0, 20) + '...' + token.substring(token.length - 10);
+            
+            debugContainer.innerText = info;
+        } catch (e) {
+            debugContainer.innerText = 'Error decoding token: ' + e.message;
         }
     }
 
-    function addAuthToRequests(token) {
-        // Hook into Swagger UI's fetch to add the token
-        const originalFetch = window.fetch;
-        window.fetch = function(resource, options) {
-            // Clone options to avoid modifying the original
-            options = options || {};
-            options = { ...options };
-            
-            // Add headers if not present
-            if (!options.headers) {
-                options.headers = {};
-            }
-            
-            // Add authorization header with token
-            if (token && resource.toString().includes('/api/')) {
-                options.headers['Authorization'] = `Bearer ${token}`;
-            }
-            
-            return originalFetch.call(this, resource, options);
-        };
-    }
-
-    function showMessage(message, isError) {
-        // Create or get message container
-        let msgContainer = document.querySelector('.role-switcher-message');
-        if (!msgContainer) {
-            msgContainer = document.createElement('div');
-            msgContainer.className = 'role-switcher-message';
-            msgContainer.style.padding = '10px';
-            msgContainer.style.margin = '10px 0';
-            msgContainer.style.borderRadius = '4px';
-            msgContainer.style.textAlign = 'center';
-            
-            // Insert after role switcher
-            const roleSwitcher = document.querySelector('.role-switcher');
-            if (roleSwitcher && roleSwitcher.parentNode) {
-                roleSwitcher.parentNode.insertBefore(msgContainer, roleSwitcher.nextSibling);
-            }
+    function showMessage(text, isError) {
+        const message = document.createElement('div');
+        message.innerText = text;
+        message.style.padding = '10px';
+        message.style.margin = '10px 0';
+        message.style.borderRadius = '4px';
+        message.style.textAlign = 'center';
+        message.style.backgroundColor = isError ? '#f8d7da' : '#d4edda';
+        message.style.color = isError ? '#721c24' : '#155724';
+        
+        // Add to page
+        const swaggerUi = document.querySelector('.swagger-ui');
+        if (swaggerUi && swaggerUi.parentNode) {
+            swaggerUi.parentNode.insertBefore(message, swaggerUi);
         }
         
-        // Set message style based on type
-        msgContainer.style.backgroundColor = isError ? '#f8d7da' : '#d4edda';
-        msgContainer.style.color = isError ? '#721c24' : '#155724';
-        msgContainer.innerText = message;
-        
-        // Auto-remove after 3 seconds
+        // Remove after a few seconds
         setTimeout(() => {
-            if (msgContainer.parentNode) {
-                msgContainer.parentNode.removeChild(msgContainer);
+            if (message.parentNode) {
+                message.parentNode.removeChild(message);
             }
         }, 3000);
+    }
+
+    // Initialize with token from storage if available
+    const storedToken = localStorage.getItem('authToken');
+    if (storedToken) {
+        hookFetch(storedToken);
     }
 })();";
 
         await context.Response.WriteAsync(js);
     });
-
-
 
     // Setup documents directory
     SetupDocumentsDirectory(app);
